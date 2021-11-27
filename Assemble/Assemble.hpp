@@ -42,7 +42,7 @@ private:
 	* @param codeLine - Line of code that caused the error
 	* @param lineNum - Line number where error occurred
 	*/
-	void throwError(const Errors&, const std::string&, const int&) const;
+	void throwError(const Errors&, const std::string&, const size_t&) const;
 
 public:
 	Assemble(std::fstream&);
