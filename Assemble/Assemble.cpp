@@ -40,7 +40,7 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 		codeLine = codeLine.substr(0, rindex);
 	}
 
-	size_t commandIndex = codeLine.find(' ');
+	const size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
 	// largest size of vector: 2
 	const std::vector<char> accepts = StrMap::keywordMap[command];
@@ -50,12 +50,11 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	}
 
 	const char back = std::tolower(codeLine.back());
-	commandIndex++;
 	for(char ii : accepts) {
 		if(back == ii) { // command found
 			code.insert(std::pair<KeywordMap::keywords, std::string>
 				(KeywordMap::keywordMap[command], codeLine.substr(
-					commandIndex, size)));
+					commandIndex+1, size)));
 			return 1;
 		}
 	}
@@ -63,7 +62,7 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	command[0] = std::tolower(command[0]);
 	if((command[0] == 'b') || (command[0] == 's') || (command[0] == 'd')) {
 		code.insert(std::pair<KeywordMap::keywords, std::string>(
-			KeywordMap::keywordMap[command], codeLine.substr(commandIndex,
+			KeywordMap::keywordMap[command], codeLine.substr(commandIndex+1,
 				size)));
 		return 1;
 	}
