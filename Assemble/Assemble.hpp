@@ -19,6 +19,22 @@ private:
 	bool isLineLegal(std::string&);
 
 	/*
+	* Removes whitespaces from either left, right, or both side of the string
+	* 
+	* @param str - the string whitespaces will be removed from
+	* @param pos - if 3 both left and right side will be removed, if 2 only right
+		side will be removed, else only left side will be removed
+	*/
+	void whitespaceRemover(std::string&, const size_t&) const;
+
+	/*
+	* Any time a varible is found declare and store it
+	*
+	* @param instruction - what the code needs to do
+	*/
+	void declareVars(const std::string&);
+
+	/*
 	* If a line of code is not legal (see isLineLegal function) then throw an
 	error
 	*
@@ -32,5 +48,8 @@ public:
 	Assemble(std::fstream&);
 	~Assemble(void) = default;
 
-	// void assemble(void);
+	/*
+	* Assemble all code
+	*/
+	void assemble(void);
 };
