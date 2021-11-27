@@ -121,7 +121,7 @@ void Assemble::assemble(void) {
 }
 
 void Assemble::throwError(const Errors& error, const std::string& codeLine,
-	const int& lineNum) const {
+	const size_t& lineNum) const {
 	switch(error) {
 		case Errors::CommandNotFound:
 			throw "Command Not legal:\n" + codeLine + "\nLine: " +
