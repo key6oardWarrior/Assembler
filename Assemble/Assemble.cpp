@@ -1,5 +1,7 @@
 #include "Assemble.hpp"
 
+using namespace StrMap;
+
 Assemble::Assemble(std::fstream& file) {
 	std::string fileCode;
 	int line = 0;
@@ -7,6 +9,7 @@ Assemble::Assemble(std::fstream& file) {
 	if(file.is_open()) {
 		while(file.eof() == 0) {
 			std::getline(file, fileCode);
+			line++;
 
 			// ignore whitespace
 			if((fileCode == "") || (fileCode == "\n") || (fileCode == "\t")
@@ -14,10 +17,8 @@ Assemble::Assemble(std::fstream& file) {
 				continue;
 			}
 
-			if(isLineLegal(fileCode)) {
-				code.insert(std::pair<std::string*, int>(&fileCode, line++));
-			} else {
-				throwError(Errors::CommandNotFound);
+			if(isLineLegal(fileCode) == 0) {
+				throwError(Errors::CommandNotFound, fileCode, line);
 			}
 		}
 	}
@@ -25,8 +26,9 @@ Assemble::Assemble(std::fstream& file) {
 	file.close();
 }
 
-bool Assemble::isLineLegal(std::string& codeLine) const {
-	size_t rindex = codeLine.size();
+bool Assemble::isLineLegal(std::string& codeLine) {
+	const size_t size = codeLine.size();
+	size_t rindex = size;
 
 	{ // remove trailing whitespace(s)
 		auto itr = codeLine.rbegin();
@@ -38,32 +40,43 @@ bool Assemble::isLineLegal(std::string& codeLine) const {
 		codeLine = codeLine.substr(0, rindex);
 	}
 
-	std::string command = codeLine.substr(0, codeLine.find(' '));
-	const std::vector<char> accepts = keywords[command]; // largest size 2
+	size_t commandIndex = codeLine.find(' ');
+	std::string command = codeLine.substr(0, commandIndex);
+	// largest size of vector: 2
+	const std::vector<char> accepts = StrMap::keywordMap[command];
 
 	if(accepts.size() < 1) { // command not found
 		return 0;
 	}
 
 	const char back = std::tolower(codeLine.back());
+	commandIndex++;
 	for(char ii : accepts) {
 		if(back == ii) { // command found
+			code.insert(std::pair<KeywordMap::keywords, std::string>
+				(KeywordMap::keywordMap[command], codeLine.substr(
+					commandIndex, size)));
 			return 1;
 		}
 	}
 
 	command[0] = std::tolower(command[0]);
 	if((command[0] == 'b') || (command[0] == 's') || (command[0] == 'd')) {
+		code.insert(std::pair<KeywordMap::keywords, std::string>(
+			KeywordMap::keywordMap[command], codeLine.substr(commandIndex,
+				size)));
 		return 1;
 	}
 
 	return 0;
 }
 
-void Assemble::throwError(const Errors& error) const {
+void Assemble::throwError(const Errors& error, const std::string& codeLine,
+	const int& lineNum) const {
 	switch(error) {
 		case Errors::CommandNotFound:
-			throw "Command Not legal";
+			throw "Command Not legal:\n" + codeLine + "\nLine: " +
+				std::to_string(lineNum);
 			break;
 	}
 }
