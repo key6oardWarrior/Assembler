@@ -10,22 +10,29 @@ int main(void) {
 	std::fstream io = std::fstream(file);
 	Assemble assembled = Assemble(io);
 
+	Assemble* assembled = 0;
 	char answer;
 	do {
-		std::cout << "Assemble (a), or Run (r): ";
+		std::cout << "\nAssemble (a), Run (r), Exit (e): ";
 		std::cin >> answer;
 		answer = std::tolower(answer);
 
-		if(answer == 'a') {
-			// assembled.assemble();
-		} else if(answer == 'r') {
-			// assembled.assemble();
-			// Execute execute = Execute(assembled);
-			// execute.run();
+		switch(answer) {
+			case 'a':
+				assembled = new Assemble(io);
+				break;
+			case 'r':
+				assembled = new Assemble(io);
+				// Excute execute = Excute(assembled);
+				// excute.run();
+				break;
+			default:
+				break;
 		}
+	} while((answer != 'a') && (answer != 'r') && (answer != 'e'));
 
-		std::cout << std::endl;
-	} while((answer != 'a') && (answer != 'r'));
+	delete assembled;
+	assembled = nullptr;
 
 	return 0;
 }
