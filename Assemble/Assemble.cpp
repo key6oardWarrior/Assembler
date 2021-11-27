@@ -29,29 +29,37 @@ Assemble::Assemble(std::fstream& file) {
 void Assemble::whitespaceRemover(std::string& str, const size_t& pos=1) const {
 	switch(pos) { // remove trailing and begining whitespace(s)
 		case 3: {
-			auto itr = str.rbegin();
-			size_t rindex = str.size();
+			if(str.back() == ' ') {
+				auto itr = str.rbegin();
+				size_t rindex = str.size();
 
-			while(*itr == ' ') {
-				rindex--;
-				itr++;
+				while (*itr == ' ') {
+					rindex--;
+					itr++;
+				}
+
+				str = str.substr(0, rindex);
 			}
 
-			str = str.substr(0, rindex);
+			if(str[0] == ' ') {
+				auto b_itr = str.begin();
+				size_t index = 0;
 
-			auto b_itr = str.begin();
-			size_t index = 0;
+				while (*b_itr == ' ') {
+					index++;
+					b_itr++;
+				}
 
-			while(*b_itr == ' ') {
-				index++;
-				b_itr++;
+				str = str.substr(index);
 			}
-
-			str = str.substr(index);
 			break;
 		}
 
 		case 2: {// remove trailing whitespaces
+			if(str.back() != ' ') {
+				return;
+			}
+
 			auto itr = str.rbegin();
 			size_t rindex = str.size();
 
@@ -64,6 +72,10 @@ void Assemble::whitespaceRemover(std::string& str, const size_t& pos=1) const {
 			break;
 		}
 		default: // remove begining whitespaces
+			if(str[0] != ' ') {
+				return;
+			}
+
 			auto b_itr = str.begin();
 			size_t index = 0;
 			while(*b_itr == ' ') {
@@ -82,10 +94,17 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 
 	if(StrMap::keywordMap[command].size() == 0) {
 		commandIndex = codeLine.find(' ', command.size()-1);
-		const size_t stop = codeLine.find(' ', commandIndex)-1;
-		command = codeLine.substr(commandIndex, stop);
-		whitespaceRemover(command, 3);
+		size_t stop = codeLine.find(' ', commandIndex)-1;
+
+		while(codeLine[commandIndex+2] == ' ') {
+			commandIndex++;
+		}
+
+		stop = codeLine.find(' ', commandIndex) - 1;
+		command = codeLine.substr(commandIndex-1, stop);
 	}
+
+	whitespaceRemover(command, 3);
 
 	// largest size of vector: 2
 	const std::vector<char> accepts = StrMap::keywordMap[command];
@@ -121,7 +140,7 @@ void Assemble::assemble(void) {
 }
 
 void Assemble::throwError(const Errors& error, const std::string& codeLine,
-	const size_t& lineNum) const {
+	const int& lineNum) const {
 	switch(error) {
 		case Errors::CommandNotFound:
 			throw "Command Not legal:\n" + codeLine + "\nLine: " +
