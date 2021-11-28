@@ -17,7 +17,9 @@ Assemble::Assemble(std::fstream& file) {
 				continue;
 			}
 
-			if(isLineLegal(fileCode) == 0) {
+			removeBadSpacing(fileCode);
+
+			if(isLineLegal(fileCode, line) == 0) {
 				throwError(Errors::CommandNotFound, fileCode, line);
 			}
 		}
@@ -26,85 +28,49 @@ Assemble::Assemble(std::fstream& file) {
 	file.close();
 }
 
-void Assemble::whitespaceRemover(std::string& str, const size_t& pos=1) const {
-	switch(pos) { // remove trailing and begining whitespace(s)
-		case 3: {
-			if(str.back() == ' ') {
-				auto itr = str.rbegin();
-				size_t rindex = str.size();
+void Assemble::removeBadSpacing(std::string& str) const {
+	auto itr = str.begin();
+	int cnt = 0;
 
-				while (*itr == ' ') {
-					rindex--;
-					itr++;
-				}
-
-				str = str.substr(0, rindex);
-			}
-
-			if(str[0] == ' ') {
-				auto b_itr = str.begin();
-				size_t index = 0;
-
-				while (*b_itr == ' ') {
-					index++;
-					b_itr++;
-				}
-
-				str = str.substr(index);
-			}
-			break;
+	while(itr != str.end()) {
+		if(*itr == ' ') {
+			cnt++;
+		} else {
+			cnt = 0;
 		}
 
-		case 2: {// remove trailing whitespaces
-			if(str.back() != ' ') {
-				return;
-			}
-
-			auto itr = str.rbegin();
-			size_t rindex = str.size();
-
-			while(*itr == ' ') {
-				rindex--;
+		if(cnt >= 2) {
+			if(*(itr+1) == ' ') {
 				itr++;
+			} else {
+				str.replace(itr-cnt, ++itr, " ");
 			}
-
-			str = str.substr(0, rindex);
-			break;
+		} else {
+			itr++;
 		}
-		default: // remove begining whitespaces
-			if(str[0] != ' ') {
-				return;
-			}
+	}
 
-			auto b_itr = str.begin();
-			size_t index = 0;
-			while(*b_itr == ' ') {
-				index++;
-				b_itr++;
-			}
+	if(*(str.begin()) == ' ') {
+		str = str.substr(1);
+	}
 
-			str = str.substr(index);
+	if(str.back() == ' ') {
+		str = str.substr(0, str.size()-1);
 	}
 }
 
-bool Assemble::isLineLegal(std::string& codeLine) {
-	whitespaceRemover(codeLine, 3);
+bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 	size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
+	std::string specifier = "";
 
-	if(StrMap::keywordMap[command].size() == 0) {
-		commandIndex = codeLine.find(' ', command.size()-1);
-		size_t stop = codeLine.find(' ', commandIndex)-1;
-
-		while(codeLine[commandIndex+2] == ' ') {
-			commandIndex++;
-		}
-
-		stop = codeLine.find(' ', commandIndex) - 1;
-		command = codeLine.substr(commandIndex-1, stop);
+	if(codeLine[commandIndex - 1] == ':') {
+		size_t stop = codeLine.find(' ', commandIndex + 1);
+		command = codeLine.substr(commandIndex+1, stop-commandIndex-1);
+		commandIndex = stop;
 	}
 
-	whitespaceRemover(command, 3);
+	specifier = codeLine.substr(commandIndex+1);
 
 	// largest size of vector: 2
 	const std::vector<char> accepts = StrMap::keywordMap[command];
@@ -114,6 +80,8 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	}
 	
 	if(accepts[0] == 1) {
+		code.insert(std::pair<int, Node*>(order,
+			new Node(KeywordMap::keywordMap[command], specifier)));
 		return 1;
 	}
 
@@ -121,9 +89,8 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	const char back = std::tolower(codeLine.back());
 	for(char ii : accepts) {
 		if(back == ii) { // command found
-			code.insert(std::pair<KeywordMap::keywords, std::string>
-				(KeywordMap::keywordMap[command], codeLine.substr(
-					commandIndex+1, size)));
+			code.insert(std::pair<int, Node*>(order,
+				new Node(KeywordMap::keywordMap[command], specifier)));
 			return 1;
 		}
 	}
