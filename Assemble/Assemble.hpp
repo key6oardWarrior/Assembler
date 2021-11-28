@@ -1,31 +1,26 @@
 #pragma once
 #include "..\pch.h"
 #include "..\Const\Errors.hpp"
-#include "..\Const\Kewords.hpp"
+#include "Node.hpp"
+#include "Graph.hpp"
 
 using namespace KeywordMap;
 
 class Assemble {
 private:
 	// key = command, value = instruction
-	std::map<KeywordMap::keywords, std::string> code;
+	std::map<int, Node*> code;
 
 	/*
 	* Determin if the current line of code is legal, or not.
 	* 
 	* @param codeLine - The line of code being checked
+	* @param order - The order of execution
 	* @returns - true if the line is legal else false
 	*/
-	bool isLineLegal(std::string&);
+	bool isLineLegal(std::string&, const int&);
 
-	/*
-	* Removes whitespaces from either left, right, or both side of the string
-	* 
-	* @param str - the string whitespaces will be removed from
-	* @param pos - if 3 both left and right side will be removed, if 2 only right
-		side will be removed, else only left side will be removed
-	*/
-	void whitespaceRemover(std::string&, const size_t&) const;
+	void removeBadSpacing(std::string&) const;
 
 	/*
 	* Any time a varible is found declare and store it
@@ -42,7 +37,7 @@ private:
 	* @param codeLine - Line of code that caused the error
 	* @param lineNum - Line number where error occurred
 	*/
-	void throwError(const Errors&, const std::string&, const size_t&) const;
+	void throwError(const Errors&, const std::string&, const int&) const;
 
 public:
 	Assemble(std::fstream&);
