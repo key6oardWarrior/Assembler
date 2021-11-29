@@ -11,7 +11,6 @@ private:
 public:
 	Graph(Node* node) {
 		root = node;
-		height = 1;
 	}
 
 	~Graph(void);
