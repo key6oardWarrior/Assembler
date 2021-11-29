@@ -1,11 +1,13 @@
 #pragma once
 #include "..\pch.h"
+#include "Graph.hpp"
 #include "..\Const\Errors.hpp"
 
 using namespace KeywordMap;
 
 class Assemble {
 private:
+	Graph* order = new Graph();
 	// key = line number, value = Node
 	std::map<int, Node*> code;
 	// key = what node needs to do, value = Node
