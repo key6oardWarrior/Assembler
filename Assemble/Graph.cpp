@@ -1,4 +1,4 @@
-#include "Assemble/Graph.hpp"
+#include "Graph.hpp"
 
 Graph::~Graph(void) {
 	Node* current = root;
@@ -8,19 +8,19 @@ Graph::~Graph(void) {
 	visited.insert(current);
 
 	// Breadth-first search to store every node in a set
-	while (queue.size() > 0) {
+	while(queue.size() > 0) {
 		Node* left = queue.front();
 		Node* right = left;
 		queue.pop();
 
-		while (left != NULL) {
-			if (*(visited.find(left)) != left) {
+		while(left != NULL) {
+			if(*(visited.find(left)) != left) {
 				visited.insert(left);
-				if (left->left != NULL) {
+				if(left->left != NULL) {
 					queue.push(left->left);
 				}
 
-				if (left->right != NULL) {
+				if(left->right != NULL) {
 					queue.push(left->right);
 				}
 			}
@@ -30,7 +30,7 @@ Graph::~Graph(void) {
 	}
 
 	auto itr = visited.begin();
-	while (itr != visited.end()) {
+	while(itr != visited.end()) {
 		auto prev = itr++;
 		delete* prev;
 	}
