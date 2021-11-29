@@ -5,7 +5,6 @@
 class Graph {
 private:
 	Node* root;
-	int height = 0;
 
 	Graph(void) = default;
 
@@ -19,9 +18,5 @@ public:
 
 	Node* getRoot(void) {
 		return root;
-	}
-
-	int getHeight(void) {
-		return height;
 	}
 };
