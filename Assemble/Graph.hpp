@@ -15,7 +15,13 @@ public:
 		height = 1;
 	}
 
-	Node* getRoot(void) { return root; }
+	~Graph(void);
 
-	int getHeight(void) { return height; }
+	Node* getRoot(void) {
+		return root;
+	}
+
+	int getHeight(void) {
+		return height;
+	}
 };
