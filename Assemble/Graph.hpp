@@ -5,16 +5,15 @@ class Graph {
 private:
 	Node* root;
 
-	Graph(void) = default;
-
 public:
-	Graph(Node* node) {
-		root = node;
-	}
-
+	Graph(void) = default;
 	~Graph(void);
 
 	Node* getRoot(void) {
 		return root;
+	}
+
+	void setRoot(Node* node) {
+		root = node;
 	}
 };
