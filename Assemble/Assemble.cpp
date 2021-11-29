@@ -82,7 +82,7 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 			command.replace(end-1, end, "");
 		}
 		isCollision(command, node);
-			size_t stop = codeLine.find(' ', commandIndex + 1);
+		size_t stop = codeLine.find(' ', commandIndex + 1);
 		command = codeLine.substr(commandIndex + 1, stop - commandIndex - 1);
 		commandIndex = stop;
 	}
