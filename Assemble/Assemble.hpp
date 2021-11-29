@@ -1,144 +1,61 @@
-#include "Assemble.hpp"
-#include "Graph.hpp"
+#pragma once
+#include "..\pch.h"
+#include "..\Const\Errors.hpp"
+#include "Node.hpp"
 
-using namespace StrMap;
+using namespace KeywordMap;
 
-Assemble::Assemble(std::fstream& file) {
-	std::string fileCode;
-	int line = 0;
+class Assemble {
+private:
+	// key = line number, value = Node
+	std::map<int, Node*> code;
+	// key = what node needs to do, value = Node
+	std::map<std::string, Node*> brMap;
 
-	if(file.is_open()) {
-		while(file.eof() == 0) {
-			std::getline(file, fileCode);
-			line++;
+	Assemble(void) = default;
+	
+	/*
+	* Handles if there is a string key in the brMap
+	* 
+	* @param str - the string to test
+	* @param node - the node to go into brMap if there is no collision
+	*/
+	void isCollision(const std::string&, Node*);
 
-			// ignore whitespace
-			if((fileCode == "") || (fileCode == "\n") || (fileCode == "\t")
-				|| (fileCode == " ")) {
-				continue;
-			}
+	/*
+	* Determin if the current line of code is legal, or not.
+	* 
+	* @param codeLine - The line of code being checked
+	* @param order - The order of execution
+	* @returns - true if the line is legal else false
+	*/
+	bool isLineLegal(std::string&, const int&);
 
-			removeBadSpacing(fileCode);
+	void removeBadSpacing(std::string&) const;
 
-			if(isLineLegal(fileCode, line) == 0) {
-				throwError(Errors::CommandNotFound, fileCode, line);
-			}
-		}
-	}
+	/*
+	* Any time a varible is found declare and store it
+	*
+	* @param instruction - what the code needs to do
+	*/
+	void declareVars(const std::string&);
 
-	file.close();
-}
+	/*
+	* If a line of code is not legal (see isLineLegal function) then throw an
+	error
+	*
+	* @param error - Error used to generate error message
+	* @param codeLine - Line of code that caused the error
+	* @param lineNum - Line number where error occurred
+	*/
+	void throwError(const Errors&, const std::string&, const int&) const;
 
-void Assemble::removeBadSpacing(std::string& str) const {
-	auto itr = str.begin();
-	int cnt = 0;
+public:
+	Assemble(std::fstream&);
+	~Assemble(void) = default;
 
-	while(itr != str.end()) {
-		if(*itr == ' ') {
-			cnt++;
-		} else {
-			cnt = 0;
-		}
-
-		if(cnt >= 2) {
-			if(*(itr+1) == ' ') {
-				itr++;
-			} else {
-				str.replace(itr-cnt, ++itr, " ");
-			}
-		} else {
-			itr++;
-		}
-	}
-
-	if(*(str.begin()) == ' ') {
-		str = str.substr(1);
-	}
-
-	if(str.back() == ' ') {
-		str = str.substr(0, str.size()-1);
-	}
-}
-
-void Assemble::isCollision(const std::string& str, Node* node) {
-	if(brMap.find(str) != brMap.end()) {
-		if(brMap[str]->isGo2) {
-			brMap[str]->left = node;
-		} else {
-			node->left = brMap[str];
-		}
-	} else {
-		brMap.insert(std::pair<std::string, Node*>(str, node));
-	}
-}
-
-bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
-	size_t commandIndex = codeLine.find(' ');
-	std::string command = codeLine.substr(0, commandIndex);
-	Node* node = new Node();
-
-	if(codeLine[commandIndex - 1] == ':') {
-		{
-			const auto end = command.end();
-			command.replace(end-1, end, "");
-		}
-		isCollision(command, node);
-			size_t stop = codeLine.find(' ', commandIndex + 1);
-		command = codeLine.substr(commandIndex + 1, stop - commandIndex - 1);
-		commandIndex = stop;
-	}
-
-	// largest size of vector: 2
-	const std::vector<char> accepts = StrMap::keywordMap[command];
-
-	if(accepts.size() < 1) { // command not found
-		return 0;
-	}
-
-	if(accepts[0] == 1) {
-		node->isGo2 = 1;
-		node->specifier = codeLine.substr(commandIndex + 1);
-		node->instruction = KeywordMap::keywordMap[command];
-		code.insert(std::pair<int, Node*>(order, node));
-		isCollision(node->specifier, node);
-		return 1;
-	}
-
-	const size_t size = codeLine.size();
-	const char back = std::tolower(codeLine.back());
-	for(char ii : accepts) {
-		if(back == ii) { // specifier found
-			node->specifier = codeLine.substr(commandIndex + 1);
-			node->instruction = KeywordMap::keywordMap[command];
-			code.insert(std::pair<int, Node*>(order, node));
-			return 1;
-		}
-	}
-
-	return 0; // specifier not found
-}
-
-void Assemble::assemble(void) {
-	auto itr = code.begin();
-	Graph* graph = new Graph(itr->second);
-
-	const auto end = code.end();
-	while(itr != end) {
-		Node* node = itr->second;
-		itr++;
-
-		if(itr != end) {
-			node->right = itr->second;
-		}
-	}
-}
-
-void Assemble::throwError(const Errors& error, const std::string& codeLine,
-	const int& lineNum) const {
-	switch(error) {
-		case Errors::CommandNotFound:
-			throw "Command Not legal:\n" + codeLine + "\nLine: " +
-				std::to_string(lineNum);
-			break;
-	}
-}
+	/*
+	* Assemble all code
+	*/
+	void assemble(void);
+};
