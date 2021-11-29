@@ -1,5 +1,4 @@
 #pragma once
-#include "../pch.h"
 
 struct Node {
 	Node* left = NULL; // a branching instruction's next execuition will go here
