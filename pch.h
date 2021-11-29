@@ -6,6 +6,7 @@
 #include <map>
 #include <fstream>
 #include <set>
+#include <queue>
 
 #include "Const\Kewords.hpp"
 #include "Assemble\Node.hpp"
