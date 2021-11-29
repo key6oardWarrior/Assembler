@@ -120,7 +120,7 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 
 void Assemble::assemble(void) {
 	auto itr = code.begin();
-	Graph* graph = new Graph(itr->second);
+	order->setRoot(itr->second);
 
 	const auto end = code.end();
 	while(itr != end) {
@@ -131,6 +131,9 @@ void Assemble::assemble(void) {
 			node->right = itr->second;
 		}
 	}
+
+	delete order;
+	order = nullptr;
 }
 
 void Assemble::throwError(const Errors& error, const std::string& codeLine,
