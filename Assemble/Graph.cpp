@@ -16,6 +16,7 @@ Graph::~Graph(void) {
 		while(left != NULL) {
 			if(*(visited.find(left)) != left) {
 				visited.insert(left);
+				
 				if(left->left != NULL) {
 					queue.push(left->left);
 				}
