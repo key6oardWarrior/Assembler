@@ -1,4 +1,5 @@
 #include "Assemble.hpp"
+#include "Graph.hpp"
 
 using namespace StrMap;
 
@@ -59,18 +60,33 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	}
 }
 
+void Assemble::isCollision(const std::string& str, Node* node) {
+	if(brMap.find(str) != brMap.end()) {
+		if(brMap[str]->isGo2) {
+			brMap[str]->left = node;
+		} else {
+			node->left = brMap[str];
+		}
+	} else {
+		brMap.insert(std::pair<std::string, Node*>(str, node));
+	}
+}
+
 bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 	size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
-	std::string specifier = "";
+	Node* node = new Node();
 
 	if(codeLine[commandIndex - 1] == ':') {
-		size_t stop = codeLine.find(' ', commandIndex + 1);
-		command = codeLine.substr(commandIndex+1, stop-commandIndex-1);
+		{
+			const auto end = command.end();
+			command.replace(end-1, end, "");
+		}
+		isCollision(command, node);
+			size_t stop = codeLine.find(' ', commandIndex + 1);
+		command = codeLine.substr(commandIndex + 1, stop - commandIndex - 1);
 		commandIndex = stop;
 	}
-
-	specifier = codeLine.substr(commandIndex+1);
 
 	// largest size of vector: 2
 	const std::vector<char> accepts = StrMap::keywordMap[command];
@@ -78,31 +94,42 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 	if(accepts.size() < 1) { // command not found
 		return 0;
 	}
-	
+
 	if(accepts[0] == 1) {
-		code.insert(std::pair<int, Node*>(order,
-			new Node(KeywordMap::keywordMap[command], specifier)));
+		node->isGo2 = 1;
+		node->specifier = codeLine.substr(commandIndex + 1);
+		node->instruction = KeywordMap::keywordMap[command];
+		code.insert(std::pair<int, Node*>(order, node));
+		isCollision(node->specifier, node);
 		return 1;
 	}
 
 	const size_t size = codeLine.size();
 	const char back = std::tolower(codeLine.back());
 	for(char ii : accepts) {
-		if(back == ii) { // command found
-			code.insert(std::pair<int, Node*>(order,
-				new Node(KeywordMap::keywordMap[command], specifier)));
+		if(back == ii) { // specifier found
+			node->specifier = codeLine.substr(commandIndex + 1);
+			node->instruction = KeywordMap::keywordMap[command];
+			code.insert(std::pair<int, Node*>(order, node));
 			return 1;
 		}
 	}
 
-	return 0;
+	return 0; // specifier not found
 }
 
 void Assemble::assemble(void) {
 	auto itr = code.begin();
+	Graph* graph = new Graph(itr->second);
 
-	while(itr != code.end()) {
-		
+	const auto end = code.end();
+	while(itr != end) {
+		Node* node = itr->second;
+		itr++;
+
+		if(itr != end) {
+			node->right = itr->second;
+		}
 	}
 }
 
