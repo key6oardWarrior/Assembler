@@ -29,6 +29,7 @@ Graph::~Graph(void) {
 		}
 	}
 
+	// delete every node stored in the set
 	auto itr = visited.begin();
 	while(itr != visited.end()) {
 		auto prev = itr++;
