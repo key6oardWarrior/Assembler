@@ -53,7 +53,11 @@ private:
 
 public:
 	Assemble(std::fstream&);
-	~Assemble(void) = default;
+
+	~Assemble(void) {
+		delete order;
+		order = nullptr;
+	}
 
 	/*
 	* Assemble all code
