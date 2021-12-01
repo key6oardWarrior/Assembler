@@ -3,8 +3,9 @@
 Graph::~Graph(void) {
 	Node* current = root;
 	std::queue<Node*> queue;
-	queue.push(current);
 	std::set<Node*> visited;
+
+	queue.push(current);
 	visited.insert(current);
 
 	// Breadth-first search to store every node in a set
