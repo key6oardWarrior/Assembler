@@ -10,7 +10,7 @@ int main(void) {
 	std::fstream io = std::fstream(file);
 	Assemble assembled = Assemble(io);
 
-	Assemble* assembled = 0;
+	Assemble* assembled = NULL;
 	char answer;
 	do {
 		std::cout << "\nAssemble (a), Run (r), Exit (e): ";
@@ -20,11 +20,11 @@ int main(void) {
 		switch(answer) {
 			case 'a':
 				assembled = new Assemble(io);
+				assembled->assemble();
 				break;
 			case 'r':
 				assembled = new Assemble(io);
-				// Excute execute = Excute(assembled);
-				// excute.run();
+				assembled->assemble();
 				break;
 			default:
 				break;
