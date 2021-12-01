@@ -9,24 +9,24 @@ Graph::~Graph(void) {
 
 	// Breadth-first search to store every node in a set
 	while(queue.size() > 0) {
-		Node* left = queue.front();
-		Node* right = left;
+		Node* parent = queue.front();
 		queue.pop();
 
-		while(left != NULL) {
-			if(*(visited.find(left)) != left) {
-				visited.insert(left);
-				
-				if(left->left != NULL) {
-					queue.push(left->left);
+		while(parent != NULL) {
+			if(*(visited.find(parent)) != parent) {
+				visited.insert(parent);
+
+				if(parent->left != NULL) {
+					queue.push(parent->left);
 				}
 
-				if(left->right != NULL) {
-					queue.push(left->right);
+				if(parent->right != NULL) {
+					queue.push(parent->right);
 				}
+				break;
+			} else {
+				parent = (parent->left != NULL) ? parent->left : parent->right;
 			}
-
-			left = (left->left != NULL) ? left->left : left->right;
 		}
 	}
 
@@ -34,6 +34,6 @@ Graph::~Graph(void) {
 	auto itr = visited.begin();
 	while(itr != visited.end()) {
 		auto prev = itr++;
-		delete* prev;
+		delete *prev;
 	}
 }
