@@ -24,9 +24,9 @@ Graph::~Graph(void) {
 					queue.push(parent->right);
 				}
 				break;
-			} else {
-				parent = (parent->left != NULL) ? parent->left : parent->right;
 			}
+
+			parent = (parent->left != NULL) ? parent->left : parent->right;
 		}
 	}
 
