@@ -19,7 +19,7 @@ Assemble::Assemble(std::fstream& file) {
 
 			removeBadSpacing(fileCode);
 
-			if(isLineLegal(fileCode, line) == 0) {
+			if(isLineLegal(fileCode) == 0) {
 				throwError(Errors::CommandNotFound, fileCode, line);
 			}
 		}
@@ -60,18 +60,19 @@ void Assemble::removeBadSpacing(std::string& str) const {
 }
 
 void Assemble::isCollision(const std::string& str, Node* node) {
+	// if there is a collision attach make the goto's left = node
 	if(brMap.find(str) != brMap.end()) {
 		if(brMap[str]->isGo2) {
 			brMap[str]->left = node;
 		} else {
 			node->left = brMap[str];
 		}
-	} else {
+	} else { // add node to the map
 		brMap.insert(std::pair<std::string, Node*>(str, node));
 	}
 }
 
-bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
+bool Assemble::isLineLegal(std::string& codeLine) {
 	size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
 	Node* node = new Node();
@@ -81,6 +82,7 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 			const auto end = command.end();
 			command.replace(end-1, end, "");
 		}
+
 		isCollision(command, node);
 		size_t stop = codeLine.find(' ', commandIndex + 1);
 		command = codeLine.substr(commandIndex + 1, stop - commandIndex - 1);
@@ -98,7 +100,8 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 		node->isGo2 = 1;
 		node->specifier = codeLine.substr(commandIndex + 1);
 		node->instruction = KeywordMap::keywordMap[command];
-		code.insert(std::pair<int, Node*>(order, node));
+
+		code.emplace_back(node);
 		isCollision(node->specifier, node);
 		return 1;
 	}
@@ -109,7 +112,8 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 		if(back == ii) { // specifier found
 			node->specifier = codeLine.substr(commandIndex + 1);
 			node->instruction = KeywordMap::keywordMap[command];
-			code.insert(std::pair<int, Node*>(order, node));
+
+			code.emplace_back(node);
 			return 1;
 		}
 	}
@@ -119,15 +123,15 @@ bool Assemble::isLineLegal(std::string& codeLine, const int& order) {
 
 void Assemble::assemble(void) {
 	auto itr = code.begin();
-	order->setRoot(itr->second);
-
 	const auto end = code.end();
+	order->setRoot(*itr);
+
 	while(itr != end) {
-		Node* node = itr->second;
+		Node* node = *itr;
 		itr++;
 
 		if(itr != end) {
-			node->right = itr->second;
+			node->right = *itr;
 		}
 	}
 
