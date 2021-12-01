@@ -7,16 +7,17 @@ using namespace KeywordMap;
 
 class Assemble {
 private:
+	// the order code needs to execute
 	Graph* order = new Graph();
 	// key = line number, value = Node
-	std::map<int, Node*> code;
+	std::vector<Node*> code;
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
 
 	Assemble(void) = default;
 	
 	/*
-	* Handles if there is a string key in the brMap
+	* Connect branching instructions together if there is a key collision
 	* 
 	* @param str - the string to test
 	* @param node - the node to go into brMap if there is no collision
@@ -27,10 +28,9 @@ private:
 	* Determin if the current line of code is legal, or not.
 	* 
 	* @param codeLine - The line of code being checked
-	* @param order - The order of execution
 	* @returns - true if the line is legal else false
 	*/
-	bool isLineLegal(std::string&, const int&);
+	bool isLineLegal(std::string&);
 
 	void removeBadSpacing(std::string&) const;
 
