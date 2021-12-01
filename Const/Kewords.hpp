@@ -1,5 +1,4 @@
 #pragma once
-#include "..\pch.h"
 
 namespace KeywordMap {
 	enum struct keywords {
@@ -10,6 +9,8 @@ namespace KeywordMap {
 		stwx,
 
 		block,
+		equate,
+		word,
 
 		cpwa,
 		cpwx,
@@ -32,6 +33,7 @@ namespace KeywordMap {
 
 		deco,
 		stro,
+		ascii,
 
 		stop,
 		end
@@ -45,6 +47,8 @@ namespace KeywordMap {
 		{"stwx", keywords::stwx},
 
 		{".block", keywords::block},
+		{".equate", keywords::equate},
+		{".word", keywords::word},
 		
 		{"cpwa", keywords::cpwa},
 		{"cpwx", keywords::cpwx},
@@ -85,6 +89,8 @@ namespace StrMap {
 
 		// create blocks of memory
 		{".block", {1}},
+		{".equate", {1}},
+		{".word", {1}},
 
 		// compare regesters
 		{"cpwa", {'i', 'd'}},
