@@ -159,13 +159,13 @@ void Assemble::throwError(const Errors& error, const std::string& codeLine,
 		case Errors::CommandNotFound:
 			errorMsg = "Command Not legal:\n" + codeLine + "\nLine: "
 				+ std::to_string(lineNum);
-			throw error;
+			throw errorMsg;
 			break;
 
 		case Errors::FileNotOpen:
 			errorMsg = "The file could be opened\n" + codeLine +
 				std::to_string(lineNum);
-			throw error;
+			throw errorMsg;
 			break;
 	}
 }
