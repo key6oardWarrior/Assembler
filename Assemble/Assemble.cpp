@@ -2,30 +2,43 @@
 
 using namespace StrMap;
 
+void format(std::string&) {
+
+}
+
 Assemble::Assemble(std::fstream& file) {
 	std::string fileCode;
-	int line = 0;
+	size_t line = 0;
 
 	if(file.is_open()) {
 		while(file.eof() == 0) {
 			std::getline(file, fileCode);
 			line++;
 
-			// ignore whitespace
+			// ignore whitespace and comments
 			if((fileCode == "") || (fileCode == "\n") || (fileCode == "\t")
-				|| (fileCode == " ")) {
+				|| (fileCode == " ") || (fileCode[0] == ';')) {
 				continue;
+			}
+
+			{ // ignore comments
+				size_t comment = fileCode.find(';');
+				if(comment != fileCode.npos) {
+					fileCode = fileCode.substr(0, comment);
+				}
 			}
 
 			removeBadSpacing(fileCode);
 
 			if(isLineLegal(fileCode) == 0) {
+				file.close();
 				throwError(Errors::CommandNotFound, fileCode, line);
 			}
 		}
 	}
 
 	file.close();
+	order->setRoot(code[0]);
 }
 
 void Assemble::removeBadSpacing(std::string& str) const {
@@ -39,23 +52,32 @@ void Assemble::removeBadSpacing(std::string& str) const {
 			cnt = 0;
 		}
 
-		if(cnt >= 2) {
-			if(*(itr+1) == ' ') {
-				itr++;
+		if(cnt > 1) {
+			const auto c_itr = itr+1;
+			if(*(c_itr) == ' ') {
+				itr = c_itr;
 			} else {
-				str.replace(itr-cnt, ++itr, " ");
+				str = str.replace(itr - cnt, ++itr, " ");
+				itr = str.begin();
 			}
 		} else {
 			itr++;
 		}
 	}
 
-	if(*(str.begin()) == ' ') {
+	if(*itr == ' ') {
 		str = str.substr(1);
 	}
 
 	if(str.back() == ' ') {
 		str = str.substr(0, str.size()-1);
+	}
+
+	size_t delim = str.find(":");
+	if(delim != str.npos) {
+		if(str[delim-1] == ' ') {
+			str = str.substr(0, delim-1) + str.substr(delim);
+		}
 	}
 }
 
@@ -101,6 +123,10 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 		node->specifier = codeLine.substr(commandIndex + 1);
 		node->instruction = KeywordMap::keywordMap[command];
 
+		if(code.size() > 0) {
+			code.back()->right = node;
+		}
+
 		code.emplace_back(node);
 		isCollision(node->specifier, node);
 		return 1;
@@ -113,6 +139,10 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 			node->specifier = codeLine.substr(commandIndex + 1);
 			node->instruction = KeywordMap::keywordMap[command];
 
+			if(code.size() > 0) {
+				code.back()->right = node;
+			}
+
 			code.emplace_back(node);
 			return 1;
 		}
@@ -121,26 +151,10 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	return 0; // specifier not found
 }
 
-void Assemble::assemble(void) {
-	auto itr = code.begin();
-	const auto end = code.end();
-	order->setRoot(*itr);
-
-	while(itr != end) {
-		Node* node = *itr;
-		itr++;
-
-		if(itr != end) {
-			node->right = *itr;
-		}
-	}
-
-	delete order;
-	order = nullptr;
-}
+Graph* Assemble::getOrder(void) { return order; }
 
 void Assemble::throwError(const Errors& error, const std::string& codeLine,
-	const int& lineNum) const {
+	const size_t& lineNum) const {
 	switch(error) {
 		case Errors::CommandNotFound:
 			throw "Command Not legal:\n" + codeLine + "\nLine: " +
