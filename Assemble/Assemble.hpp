@@ -13,6 +13,7 @@ private:
 	std::vector<Node*> code;
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
+	std::map<std::string, std::vector<int>> vars;
 
 	Assemble(void) = default;
 	
@@ -39,7 +40,7 @@ private:
 	*
 	* @param instruction - what the code needs to do
 	*/
-	void declareVars(const std::string&);
+	void declareVars(void);
 
 	/*
 	* If a line of code is not legal (see isLineLegal function) then throw an
@@ -49,7 +50,7 @@ private:
 	* @param codeLine - Line of code that caused the error
 	* @param lineNum - Line number where error occurred
 	*/
-	void throwError(const Errors&, const std::string&, const int&) const;
+	void throwError(const Errors&, const std::string&, const size_t&) const;
 
 public:
 	Assemble(std::fstream&);
@@ -59,8 +60,5 @@ public:
 		order = nullptr;
 	}
 
-	/*
-	* Assemble all code
-	*/
-	void assemble(void);
+	Graph* getOrder(void);
 };
