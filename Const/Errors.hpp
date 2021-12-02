@@ -1,5 +1,6 @@
 #pragma once
 
 enum struct Errors {
-	CommandNotFound
+	CommandNotFound,
+	FileNotOpen
 };
