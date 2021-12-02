@@ -2,10 +2,6 @@
 
 using namespace StrMap;
 
-void format(std::string&) {
-
-}
-
 Assemble::Assemble(std::fstream& file) {
 	std::string fileCode;
 	size_t line = 0;
