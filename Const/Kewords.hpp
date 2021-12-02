@@ -72,6 +72,8 @@ namespace KeywordMap {
 		{"deco", keywords::deco},
 		{"stro", keywords::stro},
 
+		{".ascii", keywords::ascii},
+
 		{"stop", keywords::stop},
 		{".end", keywords::end}
 	};
@@ -118,6 +120,9 @@ namespace StrMap {
 		// output
 		{"deco", {1}},
 		{"stro", {1}},
+
+		// strings
+		{".ascii", {1}},
 
 		// ending program
 		{"stop", {1}},
