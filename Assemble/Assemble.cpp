@@ -31,6 +31,8 @@ Assemble::Assemble(std::fstream& file) {
 				throwError(Errors::CommandNotFound, fileCode, line);
 			}
 		}
+	} else {
+		throwError(Errors::FileNotOpen, "", 1);
 	}
 
 	file.close();
@@ -151,10 +153,19 @@ Graph* Assemble::getOrder(void) { return order; }
 
 void Assemble::throwError(const Errors& error, const std::string& codeLine,
 	const size_t& lineNum) const {
+	std::string errorMsg;
+
 	switch(error) {
 		case Errors::CommandNotFound:
-			throw "Command Not legal:\n" + codeLine + "\nLine: " +
+			errorMsg = "Command Not legal:\n" + codeLine + "\nLine: "
+				+ std::to_string(lineNum);
+			throw error;
+			break;
+
+		case Errors::FileNotOpen:
+			errorMsg = "The file could be opened\n" + codeLine +
 				std::to_string(lineNum);
+			throw error;
 			break;
 	}
 }
