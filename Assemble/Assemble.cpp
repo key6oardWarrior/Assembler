@@ -79,19 +79,6 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	}
 }
 
-void Assemble::isCollision(const std::string& str, Node* node) {
-	// if there is a collision attach make the goto's left = node
-	if(brMap.find(str) != brMap.end()) {
-		if(brMap[str]->isGo2) {
-			brMap[str]->left = node;
-		} else {
-			node->left = brMap[str];
-		}
-	} else { // add node to the map
-		brMap.insert(std::pair<std::string, Node*>(str, node));
-	}
-}
-
 bool Assemble::isLineLegal(std::string& codeLine) {
 	size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
