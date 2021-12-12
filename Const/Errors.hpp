@@ -2,5 +2,9 @@
 
 enum struct Errors {
 	CommandNotFound,
-	FileNotOpen
+	FileNotOpen,
+	NonNumeric,
+	Overflow,
+	NotEnoughBytes,
+	MissingEnd
 };
