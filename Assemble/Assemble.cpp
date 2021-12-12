@@ -51,39 +51,43 @@ void Assemble::assembleCode(void) {
 	std::string fileCode;
 	size_t line = 0;
 
-	if(file.is_open()) {
-		while(file.eof() == 0) {
-			std::getline(file, fileCode);
-			line++;
-
-			// ignore whitespace and comments
-			if((fileCode == "") || (fileCode == "\n") || (fileCode == "\t")
-				|| (fileCode == " ") || (fileCode[0] == ';')) {
-				continue;
-			}
-
-			{ // ignore comments
-				size_t comment = fileCode.find(';');
-				if(comment != fileCode.npos) {
-					fileCode = fileCode.substr(0, comment);
-				}
-			}
-
-			removeBadSpacing(fileCode);
-
-			if(isLineLegal(fileCode) == 0) {
-				file.close();
-				throwError(Errors::CommandNotFound, fileCode, line);
-			}
-		}
-	} else {
+	if(file.is_open() == 0) {
 		throwError(Errors::FileNotOpen, "", 1);
 	}
 
-	file.close();
+	while(file.eof() == 0) {
+		std::getline(file, fileCode);
+		line++;
 
-	if(code.size() > 0) {
-		order->setRoot(code[0]);
+		// ignore whitespace and comments
+		if((fileCode == "") || (fileCode == "\n") || (fileCode == "\t") ||
+			(fileCode == " ") || (fileCode[0] == ';')) {
+			continue;
+		}
+
+		{ // ignore comments
+			size_t comment = fileCode.find(';');
+			if(comment != fileCode.npos) {
+				fileCode = fileCode.substr(0, comment);
+			}
+		}
+
+		removeBadSpacing(fileCode);
+
+		if(isLineLegal(fileCode) == 0) {
+			file.close();
+			throwError(Errors::CommandNotFound, fileCode, line);
+		}
+
+		if(fileCode == ".end") {
+			file.close();
+			return;
+		}
+	}
+
+	file.close();
+	if(fileCode != ".end") {
+		throwError(Errors::MissingEnd, fileCode, line);
 	}
 }
 
@@ -141,6 +145,9 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	if(codeLine[commandIndex-1] == ':') {
 		if(codeLine[commandIndex+1] == '.') {
 			declareVars(codeLine, commandIndex);
+
+			delete node;
+			node = nullptr;
 			return 1;
 		}
 
@@ -167,11 +174,13 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 		node->specifier = codeLine.substr(commandIndex+1);
 		node->instruction = KeywordMap::keywordMap[command];
 
-		if(code.size() > 0) {
-			code.back()->right = node;
+		if(prev != NULL) {
+			prev->right = node;
+		} else {
+			order->setRoot(node);
 		}
 
-		code.emplace_back(node);
+		prev = node;
 		isCollision(node->specifier, node);
 		return 1;
 	}
@@ -183,11 +192,13 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 			node->specifier = codeLine.substr(commandIndex + 1);
 			node->instruction = KeywordMap::keywordMap[command];
 
-			if(code.size() > 0) {
-				code.back()->right = node;
+			if(prev != NULL) {
+				prev->right = node;
+			} else {
+				order->setRoot(node);
 			}
 
-			code.emplace_back(node);
+			prev = node;
 			return 1;
 		}
 	}
@@ -223,6 +234,12 @@ void Assemble::throwError(const Errors& error, const std::string& codeLine,
 		case Errors::Overflow:
 			errorMsg = "Out of range of values -32768 and 65535: " + codeLine +
 				" \nLine" + std::to_string(lineNum);
+			throw errorMsg;
+			break;
+
+		case Errors::MissingEnd:
+			errorMsg = "Missing .END statement. \nLine: " +
+				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 	}
