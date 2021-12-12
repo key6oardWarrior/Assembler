@@ -10,10 +10,9 @@
 class Assemble {
 private:
 	std::fstream file;
+	Node* prev;
 	// the order code needs to execute
 	Graph* order = new Graph();
-	// key = line number, value = Node
-	std::vector<Node*> code;
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
 	// key = var name, value = a continuous memory space
@@ -48,6 +47,11 @@ private:
 	*/
 	bool isLineLegal(std::string&);
 
+	/*
+	* If the user enters to many spaces in some places the spaces must be removed
+	* 
+	* @param str - The line of code that will be checked for bad spacing
+	*/
 	void removeBadSpacing(std::string&) const;
 
 	/*
@@ -58,11 +62,6 @@ private:
 	* @returns Base 10 integer
 	*/
 	int findInt(const std::string&) const;
-
-	/*
-	* Store the string vars
-	*/
-	void stringVars(const std::string&) const;
 
 	/*
 	* Any time a varible is found declare and store it
@@ -90,8 +89,15 @@ public:
 	~Assemble(void) {
 		delete order;
 		order = nullptr;
+
+		if(file.is_open()) {
+			file.close();
+		}
 	}
 
+	/*
+	* Assemble all code in assembly file
+	*/
 	void assembleCode(void);
 
 	Graph* getOrder(void);
