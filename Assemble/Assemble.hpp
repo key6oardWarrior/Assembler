@@ -3,17 +3,21 @@
 #include "Graph.hpp"
 #include "..\Const\Errors.hpp"
 
-using namespace KeywordMap;
+#define u_max 65535
+#define max 32767
+#define min -32768
 
 class Assemble {
 private:
+	std::fstream file;
 	// the order code needs to execute
 	Graph* order = new Graph();
 	// key = line number, value = Node
 	std::vector<Node*> code;
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
-	std::map<std::string, std::vector<int>> vars;
+	// key = var name, value = a continuous memory space
+	std::map<std::string, int> vars;
 
 	Assemble(void) = default;
 	
@@ -23,7 +27,7 @@ private:
 	* @param str - the string to test
 	* @param node - the node to go into brMap if there is no collision
 	*/
-	void isCollision(const std::string&, Node*) {
+	void isCollision(const std::string& str, Node* node) {
 		// if there is a collision attach make the goto's left = node
 		if(brMap.find(str) != brMap.end()) {
 			if(brMap[str]->isGo2) {
@@ -47,11 +51,26 @@ private:
 	void removeBadSpacing(std::string&) const;
 
 	/*
+	* Determin if the string is in base 10, 2, or 16 then return the base 10
+	* integer.
+	* 
+	* @param memorySize - the size of the memory block
+	* @returns Base 10 integer
+	*/
+	int findInt(const std::string&) const;
+
+	/*
+	* Store the string vars
+	*/
+	void stringVars(const std::string&) const;
+
+	/*
 	* Any time a varible is found declare and store it
 	*
-	* @param instruction - what the code needs to do
+	* @param declaration - var that needs to be stored
+	* @param index - where the first ' ' char is located in declaration
 	*/
-	void declareVars(void);
+	void declareVars(const std::string& declaration, const size_t& index);
 
 	/*
 	* If a line of code is not legal (see isLineLegal function) then throw an
@@ -64,12 +83,16 @@ private:
 	void throwError(const Errors&, const std::string&, const size_t&) const;
 
 public:
-	Assemble(std::fstream&);
+	Assemble(const std::string& fileName) {
+		file = std::fstream(fileName);
+	}
 
 	~Assemble(void) {
 		delete order;
 		order = nullptr;
 	}
+
+	void assembleCode(void);
 
 	Graph* getOrder(void);
 };
