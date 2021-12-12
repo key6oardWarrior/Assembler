@@ -1,8 +1,53 @@
 #include "Assemble.hpp"
 
-using namespace StrMap;
+void Assemble::removeBadSpacing(std::string& str) const {
+	auto itr = str.begin();
+	int cnt = 0;
 
-Assemble::Assemble(std::fstream& file) {
+	while(itr != str.end()) {
+		if(*itr == ' ') {
+			cnt++;
+		} else {
+			cnt = 0;
+		}
+
+		if(cnt > 1) {
+			const auto c_itr = itr + 1;
+			if(*(c_itr) == ' ') {
+				itr = c_itr;
+			} else {
+				str = str.replace(itr-cnt, ++itr, " ");
+				itr = str.begin();
+			}
+		} else {
+			itr++;
+		}
+	}
+
+	if(str[0] == ' ') {
+		str = str.substr(1);
+	}
+
+	if(str.back() == ' ') {
+		str = str.substr(0, str.size()-1);
+	}
+
+	size_t delim = str.find(":");
+	if(delim != str.npos) {
+		if(str[delim-1] == ' ') {
+			str = str.substr(0, delim-1) + str.substr(delim);
+		}
+	}
+
+	delim = str.find(",");
+	if(delim != str.npos) {
+		if(str[delim-1] == ' ') {
+			str = str.substr(0, delim-1) + str.substr(delim);
+		}
+	}
+}
+
+void Assemble::assembleCode(void) {
 	std::string fileCode;
 	size_t line = 0;
 
@@ -36,46 +81,55 @@ Assemble::Assemble(std::fstream& file) {
 	}
 
 	file.close();
-	order->setRoot(code[0]);
+
+	if(code.size() > 0) {
+		order->setRoot(code[0]);
+	}
 }
 
-void Assemble::removeBadSpacing(std::string& str) const {
-	auto itr = str.begin();
-	int cnt = 0;
+int Assemble::findInt(const std::string& memorySize) const {
+	std::stringstream str2int;
+	int number;
 
-	while(itr != str.end()) {
-		if(*itr == ' ') {
-			cnt++;
-		} else {
-			cnt = 0;
-		}
-
-		if(cnt > 1) {
-			const auto c_itr = itr+1;
-			if(*(c_itr) == ' ') {
-				itr = c_itr;
-			} else {
-				str = str.replace(itr - cnt, ++itr, " ");
-				itr = str.begin();
-			}
-		} else {
+	if(memorySize.substr(0, 2) == "0x") {
+		str2int << std::hex << memorySize;
+	} else {
+		auto itr = memorySize.begin();
+		while(itr != memorySize.end()) {
+			if(isdigit(*itr) == 0)
+				throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
 			itr++;
 		}
+
+		str2int << memorySize;
 	}
 
-	if(*itr == ' ') {
-		str = str.substr(1);
+	str2int >> number;
+	if((number > u_max) || (number < min)) {
+		throwError(Errors::Overflow, memorySize, brMap.size()+1);
 	}
+	return number;
+}
 
-	if(str.back() == ' ') {
-		str = str.substr(0, str.size()-1);
-	}
+void Assemble::declareVars(const std::string& declaration, const size_t& index)
+{
+	const size_t space = declaration.rfind(' ');
+	const std::string memoryType = declaration.substr(index+1, space-(index+1));
+	const std::string memorySize = declaration.substr(space+1);
+	const std::string varName = declaration.substr(0, index-2);
+	const int number = findInt(memorySize);
 
-	size_t delim = str.find(":");
-	if(delim != str.npos) {
-		if(str[delim-1] == ' ') {
-			str = str.substr(0, delim-1) + str.substr(delim);
+	if(memoryType == ".block") {
+		if(number < 1) {
+			throwError(Errors::NotEnoughBytes, declaration, brMap.size()+1);
 		}
+	}
+
+	if(KeywordMap::keywordMap.find(memoryType) != KeywordMap::keywordMap.end())
+	{
+		vars.insert(std::pair<std::string, int>(varName, number));
+	} else {
+		throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
 	}
 }
 
@@ -84,20 +138,25 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	std::string command = codeLine.substr(0, commandIndex);
 	Node* node = new Node();
 
-	if(codeLine[commandIndex - 1] == ':') {
+	if(codeLine[commandIndex-1] == ':') {
+		if(codeLine[commandIndex+1] == '.') {
+			declareVars(codeLine, commandIndex);
+			return 1;
+		}
+
 		{
 			const auto end = command.end();
 			command.replace(end-1, end, "");
 		}
 
 		isCollision(command, node);
-		size_t stop = codeLine.find(' ', commandIndex + 1);
-		command = codeLine.substr(commandIndex + 1, stop - commandIndex - 1);
+		size_t stop = codeLine.find(' ', commandIndex+1);
+		command = codeLine.substr(commandIndex+1, stop-commandIndex-1);
 		commandIndex = stop;
 	}
 
 	// largest size of vector: 2
-	const std::vector<char> accepts = StrMap::keywordMap[command];
+	const std::vector<char> accepts = keywordMap[command];
 
 	if(accepts.size() < 1) { // command not found
 		return 0;
@@ -105,7 +164,7 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 
 	if(accepts[0] == 1) {
 		node->isGo2 = 1;
-		node->specifier = codeLine.substr(commandIndex + 1);
+		node->specifier = codeLine.substr(commandIndex+1);
 		node->instruction = KeywordMap::keywordMap[command];
 
 		if(code.size() > 0) {
@@ -152,6 +211,18 @@ void Assemble::throwError(const Errors& error, const std::string& codeLine,
 		case Errors::FileNotOpen:
 			errorMsg = "The file could be opened\n" + codeLine +
 				std::to_string(lineNum);
+			throw errorMsg;
+			break;
+
+		case Errors::NonNumeric:
+			errorMsg = "The value: " + codeLine + " is not a numeric type\
+				\nLine: " + std::to_string(lineNum);
+			throw errorMsg;
+			break;
+
+		case Errors::Overflow:
+			errorMsg = "Out of range of values -32768 and 65535: " + codeLine +
+				" \nLine" + std::to_string(lineNum);
 			throw errorMsg;
 			break;
 	}
