@@ -171,7 +171,7 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 		commandIndex = stop;
 	}
 
-	// largest size of vector: 2
+	// largest possible size of vector: 2
 	const std::vector<char> accepts = keywordMap[command];
 
 	if(accepts.size() < 1) { // command not found
@@ -223,8 +223,8 @@ void Assemble::throwError(const Errors& error, const std::string& codeLine,
 
 	switch(error) {
 		case Errors::CommandNotFound:
-			errorMsg = "Command Not legal:\n" + codeLine + "\nLine: "
-				+ std::to_string(lineNum);
+			errorMsg = "Command Not legal:\n" + codeLine + "\nLine: " +
+				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
