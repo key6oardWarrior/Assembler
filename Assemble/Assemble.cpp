@@ -2,7 +2,9 @@
 
 void Assemble::removeBadSpacing(std::string& str) const {
 	auto itr = str.begin();
+	const auto begining = itr;
 	int cnt = 0;
+	size_t index = 0;
 
 	while(itr != str.end()) {
 		if(*itr == ' ') {
@@ -12,16 +14,16 @@ void Assemble::removeBadSpacing(std::string& str) const {
 		}
 
 		if(cnt > 1) {
-			const auto c_itr = itr + 1;
-			if(*(c_itr) == ' ') {
-				itr = c_itr;
-			} else {
+			if(*(itr+1) != ' ') {
 				str = str.replace(itr-cnt, ++itr, " ");
-				itr = str.begin();
+				index -= cnt;
+				itr = begining + index;
+				cnt = 0;
 			}
-		} else {
-			itr++;
 		}
+
+		itr++;
+		index++;
 	}
 
 	if(str[0] == ' ') {
@@ -43,6 +45,13 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	if(delim != str.npos) {
 		if(str[delim-1] == ' ') {
 			str = str.substr(0, delim-1) + str.substr(delim);
+		}
+	}
+
+	delim = str.find(".");
+	if(delim != str.npos) {
+		if(str[delim+1] == ' ') {
+			str = str.substr(0, delim+1) + str.substr(delim+2);
 		}
 	}
 }
