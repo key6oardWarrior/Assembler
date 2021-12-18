@@ -1,4 +1,4 @@
-#include "Assemble.hpp"
+#include "..\pch.h"
 
 void Assemble::removeBadSpacing(std::string& str) const {
 	auto itr = str.begin();
@@ -17,7 +17,7 @@ void Assemble::removeBadSpacing(std::string& str) const {
 			if(*(itr+1) != ' ') {
 				str = str.replace(itr-cnt, ++itr, " ");
 				index -= cnt;
-				itr = begining + index;
+				itr -= cnt;
 				cnt = 0;
 			}
 		}
@@ -53,6 +53,11 @@ void Assemble::removeBadSpacing(std::string& str) const {
 		if(str[delim+1] == ' ') {
 			str = str.substr(0, delim+1) + str.substr(delim+2);
 		}
+	}
+
+	delim = str.find("\\");
+	if(delim != str.npos) {
+		str = str.substr(0, delim) + "\"";
 	}
 }
 
@@ -108,9 +113,25 @@ int Assemble::findInt(const std::string& memorySize) const {
 		str2int << std::hex << memorySize;
 	} else {
 		auto itr = memorySize.begin();
-		while(itr != memorySize.end()) {
-			if(isdigit(*itr) == 0)
-				throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
+		const auto end = memorySize.end();
+
+		while(itr != end) {
+			if(isdigit(*itr) == 0) {
+				if((*itr != '\'') && (*itr != '"')) {
+					throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
+				}
+
+				if(memorySize.size() > 4) {
+					throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
+				}
+
+				number = memorySize[1];			
+				if((memorySize[2] != '"') && (memorySize[2] != '\'')) {
+					number += memorySize[2];
+				}
+
+				return number;
+			}
 			itr++;
 		}
 
@@ -129,20 +150,49 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 	const size_t space = declaration.rfind(' ');
 	const std::string memoryType = declaration.substr(index+1, space-(index+1));
 	const std::string memorySize = declaration.substr(space+1);
-	const std::string varName = declaration.substr(0, index-2);
-	const int number = findInt(memorySize);
-
-	if(memoryType == ".block") {
-		if(number < 1) {
-			throwError(Errors::NotEnoughBytes, declaration, brMap.size()+1);
-		}
-	}
+	const std::string varName = declaration.substr(0, index-1);
+	const int number = (memoryType != ".ascii") ? findInt(memorySize) : 0;
 
 	if(KeywordMap::keywordMap.find(memoryType) != KeywordMap::keywordMap.end())
 	{
-		vars.insert(std::pair<std::string, int>(varName, number));
+		DataType type = DataType(varName, memoryType);
+
+		if(memoryType == ".block") {
+			if(number < 2) {
+				throwError(Errors::NotEnoughBytes, declaration, brMap.size()+1);
+			}
+			type.defineType(number);
+			vars.insert(std::pair<std::string, DataType>(varName, type));
+
+		} else if(memoryType == ".equate") {
+			type.defineType(number);
+			vars.insert(std::pair<std::string, DataType>(varName, type));
+
+		} else if(memoryType == ".word") {
+			lastVar = varName;
+			isArr = 1;
+			const auto end = vars.find(varName);
+
+			if(end != vars.end()) {
+				end->second.defineType(number);
+			} else {
+				type.defineType(number);
+				vars.insert(std::pair<std::string, DataType>(varName, type));
+			}
+
+		} else if(memoryType == ".ascii") {
+			if(isArr == 0) {
+				type.defineType(memorySize);
+				vars.insert(std::pair<std::string, DataType>(varName, type));
+			} else {
+				isArr = 0;
+			}
+		} else {
+			throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
+		}
+
 	} else {
-		throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
+ 		throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
 	}
 }
 
@@ -151,10 +201,33 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 	std::string command = codeLine.substr(0, commandIndex);
 	Node* node = new Node();
 
+	if((codeLine == "stop") || (codeLine == ".end")) {
+		node->instruction = KeywordMap::keywordMap[codeLine];
+		node->specifier = codeLine;
+		prev->right = node;
+		prev = node;
+		return 1;
+	}
+
+	if(codeLine[0] == '.') {
+		delete node;
+		node = nullptr;
+
+		if(isArr) {
+			if(lastVar != "") {
+				codeLine = lastVar + ": " + codeLine;
+				commandIndex = codeLine.find(' ');
+			}
+			declareVars(codeLine, commandIndex);
+		}
+
+		return 1;
+	}
+
+	isArr = 0;
 	if(codeLine[commandIndex-1] == ':') {
 		if(codeLine[commandIndex+1] == '.') {
 			declareVars(codeLine, commandIndex);
-
 			delete node;
 			node = nullptr;
 			return 1;
