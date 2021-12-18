@@ -1,14 +1,17 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <string>
 #include <map>
-#include <fstream>
 #include <set>
 #include <queue>
+#include <string>
+#include <vector>
+#include <fstream>
 #include <sstream>
+#include <iostream>
 
+#include "Regesters.hpp"
 #include "Const\Kewords.hpp"
 #include "Assemble\Node.hpp"
-#include "Regesters.hpp"
+#include "Assemble\Graph.hpp"
+#include "Assemble\DataType.hpp"
+#include "Assemble\Assemble.hpp"
