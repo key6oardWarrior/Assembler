@@ -1,6 +1,4 @@
 #pragma once
-#include "..\pch.h"
-#include "Graph.hpp"
 #include "..\Const\Errors.hpp"
 
 #define u_max 65535
@@ -16,7 +14,9 @@ private:
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
 	// key = var name, value = a continuous memory space
-	std::map<std::string, int> vars;
+	std::map<std::string, DataType> vars;
+	bool isArr = 0;
+	std::string lastVar = "";
 
 	Assemble(void) = default;
 	
