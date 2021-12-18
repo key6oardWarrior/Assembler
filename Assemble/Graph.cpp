@@ -1,4 +1,4 @@
-#include "Graph.hpp"
+#include "..\pch.h"
 
 Graph::~Graph(void) {
 	Node* current = root;
@@ -14,23 +14,32 @@ Graph::~Graph(void) {
 		queue.pop();
 
 		while(parent != NULL) {
-			if(*(visited.find(parent)) != parent) {
+			const auto node = visited.find(parent);
+			const auto end = visited.end();
+
+			if((node == end) || (*node != parent)) {
 				visited.insert(parent);
 
 				if(parent->left != NULL) {
-					queue.push(parent->left);
+					const auto nextNode = visited.find(parent->left);
+					if((nextNode == end) || (*(nextNode) != parent->left)) {
+						queue.push(parent->left);
+					}
 				}
 
 				if(parent->right != NULL) {
-					queue.push(parent->right);
+					const auto nextNode = visited.find(parent->right);
+					if((nextNode == end) || (*(nextNode) != parent->right)) {
+						queue.push(parent->right);
+					}
 				}
-				break;
+				parent = NULL;
+			} else {
+				parent = (parent->left != NULL) ? parent->left : parent->right;
 			}
-
-			parent = (parent->left != NULL) ? parent->left : parent->right;
 		}
 	}
-
+	
 	// delete every node stored in the set
 	auto itr = visited.begin();
 	while(itr != visited.end()) {
