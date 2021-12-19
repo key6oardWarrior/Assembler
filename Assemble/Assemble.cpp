@@ -61,6 +61,39 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	}
 }
 
+void Assemble::checkGraph(void) const {
+	auto itr = brMap.begin();
+
+	while(itr != brMap.end()) {
+		if(itr->second->isGo2) {
+			if(itr->second->left == NULL) {
+				throwError(Errors::Undefined, itr->second->specifier, 1);
+			}
+		}
+		itr++;
+	}
+}
+
+void Assemble::isCollision(const std::string& str, Node* node) {
+	if(brMap.find(str) != brMap.end()) {
+		if(brMap[str]->isGo2) {
+			if(brMap[str]->left == NULL) {
+				brMap[str]->left = node;
+			} else {
+				throwError(Errors::AlreadyDefined, str, brMap.size() + 1);
+			}
+		} else {
+			if(node->left == NULL) {
+				node->left = brMap[str];
+			} else {
+				throwError(Errors::AlreadyDefined, str, brMap.size() + 1);
+			}
+		}
+	} else { // add node to the map
+		brMap.insert(std::pair<std::string, Node*>(str, node));
+	}
+}
+
 void Assemble::assembleCode(void) {
 	std::string fileCode;
 	size_t line = 0;
@@ -94,6 +127,7 @@ void Assemble::assembleCode(void) {
 		}
 
 		if(fileCode == ".end") {
+			checkGraph();
 			file.close();
 			return;
 		}
@@ -103,6 +137,7 @@ void Assemble::assembleCode(void) {
 	if(fileCode != ".end") {
 		throwError(Errors::MissingEnd, fileCode, line);
 	}
+	checkGraph();
 }
 
 int Assemble::findInt(const std::string& memorySize) const {
@@ -322,6 +357,17 @@ void Assemble::throwError(const Errors& error, const std::string& codeLine,
 		case Errors::MissingEnd:
 			errorMsg = "Missing .END statement. \nLine: " +
 				std::to_string(lineNum);
+			throw errorMsg;
+			break;
+
+		case Errors::AlreadyDefined:
+			errorMsg = "Symbol " + codeLine + " already defined\nLine" +
+				std::to_string(lineNum);
+			throw errorMsg;
+			break;
+
+		case Errors::Undefined:
+			errorMsg = "Symbol " + codeLine + " undefined";
 			throw errorMsg;
 			break;
 	}
