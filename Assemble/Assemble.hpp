@@ -14,7 +14,7 @@ private:
 	// key = what node needs to do, value = Node
 	std::map<std::string, Node*> brMap;
 	// key = var name, value = a continuous memory space
-	std::map<std::string, DataType> vars;
+	std::map<std::string, DataType*> vars;
 	bool isArr = 0;
 	std::string lastVar = "";
 
@@ -95,4 +95,6 @@ public:
 	void assembleCode(void);
 
 	Graph* getOrder(void);
+
+	std::map<std::string, DataType*> getVars(void);
 };
