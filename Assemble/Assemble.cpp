@@ -67,7 +67,7 @@ void Assemble::checkGraph(void) const {
 	while(itr != brMap.end()) {
 		if(itr->second->isGo2) {
 			if(itr->second->left == NULL) {
-				throwError(Errors::Undefined, itr->second->specifier, 1);
+				throwError(AssembleErrors::Undefined, itr->second->specifier, 1);
 			}
 		}
 		itr++;
@@ -80,13 +80,13 @@ void Assemble::isCollision(const std::string& str, Node* node) {
 			if(brMap[str]->left == NULL) {
 				brMap[str]->left = node;
 			} else {
-				throwError(Errors::AlreadyDefined, str, brMap.size() + 1);
+				throwError(AssembleErrors::AlreadyDefined, str, brMap.size() + 1);
 			}
 		} else {
 			if(node->left == NULL) {
 				node->left = brMap[str];
 			} else {
-				throwError(Errors::AlreadyDefined, str, brMap.size() + 1);
+				throwError(AssembleErrors::AlreadyDefined, str, brMap.size() + 1);
 			}
 		}
 	} else { // add node to the map
@@ -99,7 +99,7 @@ void Assemble::assembleCode(void) {
 	size_t line = 0;
 
 	if(file.is_open() == 0) {
-		throwError(Errors::FileNotOpen, "", 1);
+		throwError(AssembleErrors::FileNotOpen, "", 1);
 	}
 
 	while(file.eof() == 0) {
@@ -123,7 +123,7 @@ void Assemble::assembleCode(void) {
 
 		if(isLineLegal(fileCode) == 0) {
 			file.close();
-			throwError(Errors::CommandNotFound, fileCode, line);
+			throwError(AssembleErrors::CommandNotFound, fileCode, line);
 		}
 
 		if(fileCode == ".end") {
@@ -135,7 +135,7 @@ void Assemble::assembleCode(void) {
 
 	file.close();
 	if(fileCode != ".end") {
-		throwError(Errors::MissingEnd, fileCode, line);
+		throwError(AssembleErrors::MissingEnd, fileCode, line);
 	}
 	checkGraph();
 }
@@ -153,11 +153,11 @@ int Assemble::findInt(const std::string& memorySize) const {
 		while(itr != end) {
 			if(isdigit(*itr) == 0) {
 				if((*itr != '\'') && (*itr != '"')) {
-					throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
+					throwError(AssembleErrors::NonNumeric, memorySize, brMap.size()+1);
 				}
 
 				if(memorySize.size() > 4) {
-					throwError(Errors::NonNumeric, memorySize, brMap.size()+1);
+					throwError(AssembleErrors::NonNumeric, memorySize, brMap.size()+1);
 				}
 
 				number = memorySize[1];			
@@ -175,7 +175,7 @@ int Assemble::findInt(const std::string& memorySize) const {
 
 	str2int >> number;
 	if((number > u_max) || (number < min)) {
-		throwError(Errors::Overflow, memorySize, brMap.size()+1);
+		throwError(AssembleErrors::Overflow, memorySize, brMap.size()+1);
 	}
 	return number;
 }
@@ -194,7 +194,7 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 
 		if(memoryType == ".block") {
 			if(number < 2) {
-				throwError(Errors::NotEnoughBytes, declaration, brMap.size()+1);
+				throwError(AssembleErrors::NotEnoughBytes, declaration, brMap.size()+1);
 			}
 			type.defineType(number);
 			vars.insert(std::pair<std::string, DataType>(varName, type));
@@ -223,11 +223,11 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 				isArr = 0;
 			}
 		} else {
-			throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
+			throwError(AssembleErrors::CommandNotFound, declaration, brMap.size()+1);
 		}
 
 	} else {
- 		throwError(Errors::CommandNotFound, declaration, brMap.size()+1);
+ 		throwError(AssembleErrors::CommandNotFound, declaration, brMap.size()+1);
 	}
 }
 
@@ -325,48 +325,48 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 
 Graph* Assemble::getOrder(void) { return order; }
 
-void Assemble::throwError(const Errors& error, const std::string& codeLine,
+void Assemble::throwError(const AssembleErrors& error, const std::string& codeLine,
 	const size_t& lineNum) const {
 	std::string errorMsg;
 
 	switch(error) {
-		case Errors::CommandNotFound:
+		case AssembleErrors::CommandNotFound:
 			errorMsg = "Command Not legal:\n" + codeLine + "\nLine: " +
 				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::FileNotOpen:
+		case AssembleErrors::FileNotOpen:
 			errorMsg = "The file could be opened\n" + codeLine +
 				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::NonNumeric:
+		case AssembleErrors::NonNumeric:
 			errorMsg = "The value: " + codeLine + " is not a numeric type\
 				\nLine: " + std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::Overflow:
+		case AssembleErrors::Overflow:
 			errorMsg = "Out of range of values -32768 and 65535: " + codeLine +
 				" \nLine" + std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::MissingEnd:
+		case AssembleErrors::MissingEnd:
 			errorMsg = "Missing .END statement. \nLine: " +
 				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::AlreadyDefined:
+		case AssembleErrors::AlreadyDefined:
 			errorMsg = "Symbol " + codeLine + " already defined\nLine" +
 				std::to_string(lineNum);
 			throw errorMsg;
 			break;
 
-		case Errors::Undefined:
+		case AssembleErrors::Undefined:
 			errorMsg = "Symbol " + codeLine + " undefined";
 			throw errorMsg;
 			break;
