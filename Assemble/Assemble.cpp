@@ -190,18 +190,18 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 
 	if(KeywordMap::keywordMap.find(memoryType) != KeywordMap::keywordMap.end())
 	{
-		DataType type = DataType(varName, memoryType);
+		DataType* type = new DataType(varName, memoryType);
 
 		if(memoryType == ".block") {
 			if(number < 2) {
 				throwError(AssembleErrors::NotEnoughBytes, declaration, brMap.size()+1);
 			}
-			type.defineType(number);
-			vars.insert(std::pair<std::string, DataType>(varName, type));
+			type->defineType(number);
+			vars.insert(std::pair<std::string, DataType*>(varName, type));
 
 		} else if(memoryType == ".equate") {
-			type.defineType(number);
-			vars.insert(std::pair<std::string, DataType>(varName, type));
+			type->defineType(number);
+			vars.insert(std::pair<std::string, DataType*>(varName, type));
 
 		} else if(memoryType == ".word") {
 			lastVar = varName;
@@ -209,16 +209,16 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 			const auto end = vars.find(varName);
 
 			if(end != vars.end()) {
-				end->second.defineType(number);
+				end->second->defineType(number);
 			} else {
-				type.defineType(number);
-				vars.insert(std::pair<std::string, DataType>(varName, type));
+				type->defineType(number);
+				vars.insert(std::pair<std::string, DataType*>(varName, type));
 			}
 
 		} else if(memoryType == ".ascii") {
 			if(isArr == 0) {
-				type.defineType(memorySize);
-				vars.insert(std::pair<std::string, DataType>(varName, type));
+				type->defineType(memorySize);
+				vars.insert(std::pair<std::string, DataType*>(varName, type));
 			} else {
 				isArr = 0;
 			}
@@ -324,6 +324,8 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 }
 
 Graph* Assemble::getOrder(void) { return order; }
+
+std::map<std::string, DataType*> Assemble::getVars(void) { return vars; }
 
 void Assemble::throwError(const AssembleErrors& error, const std::string& codeLine,
 	const size_t& lineNum) const {
