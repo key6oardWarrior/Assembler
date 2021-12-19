@@ -26,18 +26,12 @@ private:
 	* @param str - the string to test
 	* @param node - the node to go into brMap if there is no collision
 	*/
-	void isCollision(const std::string& str, Node* node) {
-		// if there is a collision attach make the goto's left = node
-		if(brMap.find(str) != brMap.end()) {
-			if(brMap[str]->isGo2) {
-				brMap[str]->left = node;
-			} else {
-				node->left = brMap[str];
-			}
-		} else { // add node to the map
-			brMap.insert(std::pair<std::string, Node*>(str, node));
-		}
-	}
+	void isCollision(const std::string&, Node*);
+
+	/*
+	* Check the brMap to ensure that all goto Nodes goto valid Nodes
+	*/
+	void checkGraph(void) const;
 
 	/*
 	* Determin if the current line of code is legal, or not.
