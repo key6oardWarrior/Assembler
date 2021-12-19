@@ -1,6 +1,6 @@
 #pragma once
 
-enum struct Errors {
+enum struct AssemblyErrors {
 	CommandNotFound,
 	FileNotOpen,
 	NonNumeric,
@@ -9,4 +9,8 @@ enum struct Errors {
 	MissingEnd,
 	AlreadyDefined,
 	Undefined
+};
+
+enum struct RuntimeErrors {
+
 };
