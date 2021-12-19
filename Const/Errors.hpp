@@ -6,5 +6,7 @@ enum struct Errors {
 	NonNumeric,
 	Overflow,
 	NotEnoughBytes,
-	MissingEnd
+	MissingEnd,
+	AlreadyDefined,
+	Undefined
 };
