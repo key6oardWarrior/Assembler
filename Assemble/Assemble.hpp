@@ -73,7 +73,7 @@ private:
 	* @param codeLine - Line of code that caused the error
 	* @param lineNum - Line number where error occurred
 	*/
-	void throwError(const Errors&, const std::string&, const size_t&) const;
+	void throwError(const AssembleErrors&, const std::string&, const size_t&) const;
 
 public:
 	Assemble(const std::string& fileName) {
