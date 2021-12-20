@@ -1,9 +1,9 @@
 #pragma once
 
-struct uart_device_t {
-    __int16 accumulator;
-    __int16 index;
+struct Regesters {
+	__int16 accumulator;
+	__int16 index;
 };
 
-static volatile uart_device_t* const uart_device =
-    reinterpret_cast<volatile uart_device_t*>(0xfffffffe00000000);
+static volatile Regesters* regesters =
+	reinterpret_cast<volatile Regesters*>(65535);
