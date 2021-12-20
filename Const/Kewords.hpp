@@ -1,7 +1,7 @@
 #pragma once
 
 namespace KeywordMap {
-	enum struct keywords {
+	enum struct Keywords {
 		ldwa,
 		ldwx,
 
@@ -39,43 +39,43 @@ namespace KeywordMap {
 		end
 	};
 
-	static std::map<std::string, keywords> keywordMap {
-		{"ldwa", keywords::ldwa},
-		{"ldwx", keywords::ldwx},
+	static std::map<std::string, Keywords> keywordMap {
+		{"ldwa", Keywords::ldwa},
+		{"ldwx", Keywords::ldwx},
 
-		{"stwa", keywords::stwa},
-		{"stwx", keywords::stwx},
+		{"stwa", Keywords::stwa},
+		{"stwx", Keywords::stwx},
 
-		{".block", keywords::block},
-		{".equate", keywords::equate},
-		{".word", keywords::word},
+		{".block", Keywords::block},
+		{".equate", Keywords::equate},
+		{".word", Keywords::word},
 		
-		{"cpwa", keywords::cpwa},
-		{"cpwx", keywords::cpwx},
+		{"cpwa", Keywords::cpwa},
+		{"cpwx", Keywords::cpwx},
 
-		{"adda", keywords::adda},
-		{"addx", keywords::addx},
-		{"suba", keywords::suba},
-		{"subx", keywords::subx},
+		{"adda", Keywords::adda},
+		{"addx", Keywords::addx},
+		{"suba", Keywords::suba},
+		{"subx", Keywords::subx},
 
-		{"br", keywords::br},
-		{"brgt", keywords::brgt},
-		{"brlt", keywords::brlt},
-		{"breq", keywords::breq},
-		{"brne", keywords::brne},
-		{"brge", keywords::brge},
-		{"brle", keywords::brle},
+		{"br", Keywords::br},
+		{"brgt", Keywords::brgt},
+		{"brlt", Keywords::brlt},
+		{"breq", Keywords::breq},
+		{"brne", Keywords::brne},
+		{"brge", Keywords::brge},
+		{"brle", Keywords::brle},
 
-		{"deci", keywords::deci},
-		{"stri", keywords::stri},
+		{"deci", Keywords::deci},
+		{"stri", Keywords::stri},
 
-		{"deco", keywords::deco},
-		{"stro", keywords::stro},
+		{"deco", Keywords::deco},
+		{"stro", Keywords::stro},
 
-		{".ascii", keywords::ascii},
+		{".ascii", Keywords::ascii},
 
-		{"stop", keywords::stop},
-		{".end", keywords::end}
+		{"stop", Keywords::stop},
+		{".end", Keywords::end}
 	};
 }
 
