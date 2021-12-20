@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Assemble\Assemble.hpp"
+#include "Execute\Runtime.hpp"
 
 int main(void) {
 	std::cout << "Enter assembly file: ";
@@ -8,10 +8,11 @@ int main(void) {
 	std::getline(std::cin, file);
 
 	Assemble* assembled = NULL;
+	Runtime* excute = NULL;
 	char answer;
 	do {
-		std::cout << "\nAssemble (a), Run (r), Reassemble (ra), \
-Assemble new file (nf), Exit (e): ";
+		std::cout << "\nAssemble (a), Run (r), Reassemble (s), \
+Assemble new file (n), Exit (e): ";
 		std::cin >> answer;
 		answer = std::tolower(answer);
 
@@ -22,29 +23,38 @@ Assemble new file (nf), Exit (e): ";
 				break;
 
 			case 'r':
-				assembled = new Assemble(file);
-				assembled->assembleCode();
+				if(assembled == NULL) {
+					assembled = new Assemble(file);
+					assembled->assembleCode();
+				}
+
+				excute = new Runtime(assembled->getOrder(),
+					assembled->getVars());
 				break;
 
-			case 'ra':
+			case 's':
 				delete assembled;
 				assembled = new Assemble(file);
 				assembled->assembleCode();
 				break;
 
-			case 'nf':
+			case 'n':
 				delete assembled;
 				std::getline(std::cin, file);
 
 				assembled = new Assemble(file);
 				assembled->assembleCode();
+				break;
 			default:
 				break;
 		}
-	} while((answer != 'a') && (answer != 'r') && (answer != 'e'));
+	} while(answer != 'r');
 
 	delete assembled;
 	assembled = nullptr;
+
+	delete excute;
+	excute = nullptr;
 
 	return 0;
 }
