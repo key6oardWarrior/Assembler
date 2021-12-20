@@ -30,6 +30,7 @@ Assemble new file (n), Exit (e): ";
 
 				excute = new Runtime(assembled->getOrder(),
 					assembled->getVars());
+				excute->run();
 				break;
 
 			case 's':

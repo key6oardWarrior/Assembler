@@ -13,5 +13,6 @@ enum struct AssembleErrors {
 
 enum struct RuntimeErrors {
 	Overflow,
-	NonNumeric
+	NonNumeric,
+	NotModifiable
 };
