@@ -1,28 +1,42 @@
 #include "..\pch.h"
 
-void DataType::defineType(const int& data) {
-	if(type != ".word") {
-		for(int ii = 0; ii < data; ii++) {
-			bits.emplace_back(0);
+void DataType::defineType(const std::string& str) {
+	isString = 1;
+	auto itr = str.begin()+1;
+
+	while(itr != str.end()) {
+		if(initStatus) {
+			bits[0]->enqueue(*itr++);
+		} else {
+			bits.emplace_back(new Queue());
+			initStatus = 1;
 		}
-	} else { // aka is an array
+	}
+}
+
+void DataType::defineType(const int& number) {
+	if(type == ".word") {
+		if(initStatus) {
+			bits[0]->enqueue(number);
+		} else {
+			bits.emplace_back(new Queue());
+			initStatus = 1;
+		}
+
 		isConst = 1;
-		bits.emplace_back(data);
-	}
-}
+	} else {
+		for(int ii = 0; ii < number; ii++) {
+			bits.emplace_back(new Queue());
+		}
 
-void DataType::modify(const int& index, const int& data, const bool& isSame) {
-	if(isSame == 0) {
-		for(auto ii = bits.begin(); ii != bits.end(); ii++) {
-			*ii = 0;
+		if(type == ".equate") {
+			isConst = 1;
 		}
 	}
-
-	bits[index-1] = bits[index];
-	bits[index] = data;
 }
 
+Queue* DataType::getInstance(const int& index) { return bits[index]; }
 std::string DataType::getType(void) { return type; }
-int DataType::size(void) const { return bits.size(); }
+size_t DataType::size(void) const { return bits.size(); }
 bool DataType::is_const(void) { return isConst; }
 bool DataType::is_string(void) { return isString; }

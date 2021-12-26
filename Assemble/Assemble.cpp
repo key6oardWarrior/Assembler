@@ -7,30 +7,40 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	size_t index = 0;
 
 	while(itr != str.end()) {
+		if((*itr == '"') || (*itr == '\'')) {
+			break;
+		}
+
 		if(*itr == ' ') {
 			cnt++;
 		} else {
 			cnt = 0;
 		}
 
-		if(cnt > 1) {
-			if(*(itr+1) != ' ') {
-				str = str.replace(itr-cnt, ++itr, " ");
+		if((cnt > 1) || (*itr == '\t')) {
+			const auto c_itr = itr + 1;
+			if((*c_itr != ' ') && (*c_itr != '\t')) {
+				str = str.replace(itr-cnt, c_itr, " ");
 				index -= cnt;
-				itr -= cnt;
+				itr -= (*itr != str[0]) ? ++cnt : 0;
 				cnt = 0;
 			}
+		} else {
+			itr++;
 		}
-
-		itr++;
 		index++;
 	}
 
 	if(str[0] == ' ') {
 		str = str.substr(1);
+	} else if(str[0] == '\t') {
+		str = str.substr(1);
 	}
 
-	if(str.back() == ' ') {
+	const char back = str.back();
+	if(back == '\t') {
+		str = str.substr(0, str.size()-1);
+	} else if(back == ' ') {
 		str = str.substr(0, str.size()-1);
 	}
 
@@ -80,13 +90,13 @@ void Assemble::isCollision(const std::string& str, Node* node) {
 			if(brMap[str]->left == NULL) {
 				brMap[str]->left = node;
 			} else {
-				throwError(AssembleErrors::AlreadyDefined, str, brMap.size() + 1);
+				throwError(AssembleErrors::AlreadyDefined, str, brMap.size()+1);
 			}
 		} else {
 			if(node->left == NULL) {
 				node->left = brMap[str];
 			} else {
-				throwError(AssembleErrors::AlreadyDefined, str, brMap.size() + 1);
+				throwError(AssembleErrors::AlreadyDefined, str, brMap.size()+1);
 			}
 		}
 	} else { // add node to the map
@@ -184,14 +194,13 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 {
 	const size_t space = declaration.rfind(' ');
 	const std::string memoryType = declaration.substr(index+1, space-(index+1));
-	const std::string memorySize = declaration.substr(space+1);
 	const std::string varName = declaration.substr(0, index-1);
-	const int number = (memoryType != ".ascii") ? findInt(memorySize) : 0;
+	DataType* type = new DataType(varName, memoryType);
 
 	if(KeywordMap::keywordMap.find(memoryType) != KeywordMap::keywordMap.end())
 	{
-		DataType* type = new DataType(varName, memoryType);
-
+		const std::string memorySize = declaration.substr(space + 1);
+		const int number = findInt(memorySize);
 		if(memoryType == ".block") {
 			if(number < 2) {
 				throwError(AssembleErrors::NotEnoughBytes, declaration, brMap.size()+1);
@@ -206,28 +215,32 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 		} else if(memoryType == ".word") {
 			lastVar = varName;
 			isArr = 1;
-			const auto end = vars.find(varName);
+			const auto var = vars.find(varName);
 
-			if(end != vars.end()) {
-				end->second->defineType(number);
+			if(var != vars.end()) {
+				delete type;
+				type = nullptr;
+
+				var->second->defineType(number);
 			} else {
 				type->defineType(number);
 				vars.insert(std::pair<std::string, DataType*>(varName, type));
 			}
-
-		} else if(memoryType == ".ascii") {
-			if(isArr == 0) {
-				type->defineType(memorySize);
-				vars.insert(std::pair<std::string, DataType*>(varName, type));
-			} else {
-				isArr = 0;
-			}
 		} else {
 			throwError(AssembleErrors::CommandNotFound, declaration, brMap.size()+1);
 		}
-
+	} else if(declaration.find_first_of(" .ascii ") != declaration.npos)
+		{ // is string
+		const char eof = declaration.back();
+		const size_t delim = declaration.find(eof);
+		const size_t r_delim = declaration.rfind(eof);
+		const std::string mSize = declaration.substr(delim,
+			r_delim - delim);
+		type->defineType(mSize);
+		vars.insert(std::pair<std::string, DataType*>(varName, type));
 	} else {
- 		throwError(AssembleErrors::CommandNotFound, declaration, brMap.size()+1);
+		throwError(AssembleErrors::CommandNotFound, declaration,
+			brMap.size()-1);
 	}
 }
 
@@ -254,6 +267,8 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 				commandIndex = codeLine.find(' ');
 			}
 			declareVars(codeLine, commandIndex);
+		} else {
+			lastVar = "";
 		}
 
 		return 1;

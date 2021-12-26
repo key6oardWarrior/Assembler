@@ -1,9 +1,4 @@
 #pragma once
-#include "..\Const\Errors.hpp"
-
-#define u_max 65535
-#define max 32767
-#define min -32768
 
 class Assemble {
 private:
@@ -63,7 +58,7 @@ private:
 	* @param declaration - var that needs to be stored
 	* @param index - where the first ' ' char is located in declaration
 	*/
-	void declareVars(const std::string& declaration, const size_t& index);
+	void declareVars(const std::string&, const size_t&);
 
 	/*
 	* If a line of code is not legal (see isLineLegal function) then throw an

@@ -1,5 +1,9 @@
 #pragma once
 
+#define u_max 65535
+#define max 32767
+#define min -32768
+
 namespace KeywordMap {
 	enum struct Keywords {
 		ldwa,
@@ -85,8 +89,8 @@ static std::map<std::string, std::vector<char>> keywordMap {
 	{"ldwx", {'i', 'd'}},
 
 	// store regesters in memory
-	{"stwa", {'d'}},
-	{"stwx", {'d'}},
+	{"stwa", {'d', 'x'}},
+	{"stwx", {'d', 'x'}},
 
 	// create blocks of memory
 	{".block", {1}},
@@ -113,12 +117,12 @@ static std::map<std::string, std::vector<char>> keywordMap {
 	{"brle", {1}},
 
 	// input
-	{"deci", {'d'}},
-	{"stri", {'d'}},
+	{"deci", {'d', 'x'}},
+	{"stri", {'d', 'x'}},
 
 	// output
-	{"deco", {1}},
-	{"stro", {1}},
+	{"deco", {'d', 'x'}},
+	{"stro", {'d', 'x'}},
 
 	// strings
 	{".ascii", {1}},

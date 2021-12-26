@@ -7,6 +7,7 @@
 
 <h2>Compiler</h2>
 <p>Visual Studio 2022</p>
+<p>C++ 20</p.>
 
  </body>
 </html>

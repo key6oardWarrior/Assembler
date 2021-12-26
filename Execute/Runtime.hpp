@@ -3,7 +3,6 @@
 
 using namespace KeywordMap;
 typedef Keywords Key;
-typedef RuntimeErrors Rte;
 
 class Runtime {
 private:
@@ -27,13 +26,13 @@ private:
 	* Determin the addressing more and add the correct value to the regester
 	* 
 	* @param am - The addressing mode string
-	* @param reg - The reference to the regester that will be added
+	* @param regNum - The reference to the regester that will be added
 	*/
-	void addAddressingMode(volatile short& reg, const std::string& am) const {
+	void addAddressingMode(volatile int& regNum, const std::string& am) const {
 		if(am.back() == 'i') {
-			reg += findInt(am);
+			regNum += findInt(am);
 		} else {
-			reg += memory[findInt(am)];
+			regNum += memory[findInt(am)];
 		}
 	}
 
@@ -41,13 +40,13 @@ private:
 	* Determin the addressing more and add the correct value to the regester
 	*
 	* @param am - The addressing mode string
-	* @param reg - The reference to the regester that will be subtracted
+	* @param regNum - The reference to the regester that will be subtracted
 	*/
-	void subAddressingMode(volatile short& reg, const std::string& am) const {
+	void subAddressingMode(volatile int& regNum, const std::string& am) const {
 		if(am.back() == 'i') {
-			reg -= findInt(am);
+			regNum -= findInt(am);
 		} else {
-			reg -= memory[findInt(am)];
+			regNum -= memory[findInt(am)];
 		}
 	}
 
@@ -57,8 +56,6 @@ private:
 	* @param node - line of code to be executed
 	*/
 	void execute(Node*&);
-
-	void throwError(const Rte&) const;
 
 public:
 	Runtime(Graph* order, const std::map<std::string, DataType*>& vars) {

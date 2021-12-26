@@ -1,9 +1,9 @@
 #pragma once
 
 struct Regesters {
-	__int16 accumulator;
-	__int16 index;
+    int accumulator;
+    int index;
 };
 
-static volatile Regesters* regesters =
-	reinterpret_cast<volatile Regesters*>(65535);
+static Regesters ref = Regesters();
+static volatile Regesters* regesters = reinterpret_cast<volatile Regesters*>(&ref);

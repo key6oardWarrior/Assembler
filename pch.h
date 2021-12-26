@@ -10,8 +10,10 @@
 #include <iostream>
 
 #include "Regesters.hpp"
+#include "Const\Errors.hpp"
 #include "Const\Kewords.hpp"
 #include "Assemble\Node.hpp"
 #include "Assemble\Graph.hpp"
+#include "Execute\Queue.hpp"
 #include "Assemble\DataType.hpp"
 #include "Assemble\Assemble.hpp"
