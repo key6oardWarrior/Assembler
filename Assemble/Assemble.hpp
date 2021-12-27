@@ -21,7 +21,7 @@ private:
 	* @param str - the string to test
 	* @param node - the node to go into brMap if there is no collision
 	*/
-	void isCollision(const std::string&, Node*);
+	void isCollision(const std::string&, Node*&);
 
 	/*
 	* Check the brMap to ensure that all goto Nodes goto valid Nodes
