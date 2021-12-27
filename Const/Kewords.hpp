@@ -36,7 +36,6 @@ namespace KeywordMap {
 		brle,
 
 		deci,
-		stri,
 
 		deco,
 		stro,
@@ -77,7 +76,6 @@ namespace KeywordMap {
 		{"brle", Keywords::brle},
 
 		{"deci", Keywords::deci},
-		{"stri", Keywords::stri},
 
 		{"deco", Keywords::deco},
 		{"stro", Keywords::stro},
@@ -128,7 +126,6 @@ static std::map<std::string, std::vector<char>> keywordMap {
 
 	// input
 	{"deci", {'d', 'x'}},
-	{"stri", {'d', 'x'}},
 
 	// output
 	{"deco", {'d', 'x'}},

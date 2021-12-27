@@ -18,29 +18,38 @@ void Queue::negate(void) {
 
 	LinkedList* current = top;
 
-	while(current != NULL) { // 1's complement
-		current->data = !(current->data);
-		current = current->next;
+	int diff = size - 16;
+	while(diff < 0) {
+		enqueue(false);
+		diff++;
 	}
 
-	size_t diff = size - 16;
-	while(diff > 0) {
-		enqueue(false);
-		diff--;
+	while(current != NULL) { // 1's complement
+		current->num = !(current->num);
+		current = current->next;
 	}
 
 	current = top;
 	bool carry = 1;
 	while(current != NULL) { // 2's complement
-		if(carry) {
-			if(current->data) {
-				current->data = 0;
-			} else {
-				current->data = 1;
-				carry = 0;
-			}
-		} else {
-			current = NULL;
+		switch(carry) {
+			case 1:
+				current->num = !(current->num);
+
+				switch(current->num) {
+					case 1:
+						current = NULL;
+						break;
+					default:
+						current = current->next;
+						break;
+				}
+
+				break;
+
+			default:
+				current = NULL;
+				break;
 		}
 	}
 
@@ -98,19 +107,16 @@ int Queue::getValue(void) const {
 	}
 
 	LinkedList* current = top;
-	size_t pos = 1; // will never go over 65,535
-	int value = 0;
+	size_t expon = 1;
+	int value = (isNeg) ? -65536 : 0;
 
 	while(current != NULL) {
 		if(current->num == 1) {
-			value += pos;
+			value += expon;
 		}
 
-		pos *= 2;
-	}
-
-	if(isNeg) {
-		value -= u_max;
+		expon *= 2;
+		current = current->next;
 	}
 
 	return value;

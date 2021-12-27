@@ -190,10 +190,6 @@ void Runtime::execute(Node*& node) {
 			const size_t value = (node->specifier.back() == 'x') ?
 				regesters->index : 0;
 			if(vars.find(var) != vars.end()) {
-				if(vars[var]->is_const()) {
-					throwError(Rte::NotModifiable, line);
-				}
-
 				number = abs(number);
 
 				if(value < 0) {
@@ -221,11 +217,12 @@ void Runtime::execute(Node*& node) {
 			if(N == 1) {
 				vars[var]->getInstance(value)->negate();
 			}
+
 			node = node->right;
 			break;
 		}
 
-		case Key::deco:
+		case Key::deco: {
 			const size_t index = node->specifier.find(',');
 			const std::string varName = node->specifier.substr(0, index);
 
@@ -242,6 +239,11 @@ void Runtime::execute(Node*& node) {
 				std::cout << memory[findInt(varName)];
 			}
 
+			node = node->right;
+			break;
+		}
+
+		default: // ONLY FOR TESTING. If code in file, but case not created.
 			node = node->right;
 			break;
 	}
