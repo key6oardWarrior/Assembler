@@ -7,7 +7,7 @@ void Assemble::removeBadSpacing(std::string& str) const {
 	size_t index = 0;
 
 	while(itr != str.end()) {
-		if((*itr == '"') || (*itr == '\'')) {
+		if((*itr == '"') || (*itr == '\'') || (*itr == ';')) {
 			break;
 		}
 
