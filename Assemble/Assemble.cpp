@@ -90,14 +90,13 @@ void Assemble::isCollision(const std::string& str, Node* node) {
 			if(brMap[str]->left == NULL) {
 				brMap[str]->left = node;
 			} else {
-				throwError(AssembleErrors::AlreadyDefined, str, brMap.size()+1);
+				if(node->specifier == "") {
+					throwError(AssembleErrors::AlreadyDefined, str, brMap.size()+1);
+				}
+				node->left = brMap[str]->left;
 			}
 		} else {
-			if(node->left == NULL) {
-				node->left = brMap[str];
-			} else {
-				throwError(AssembleErrors::AlreadyDefined, str, brMap.size()+1);
-			}
+			node->left = brMap[str];
 		}
 	} else { // add node to the map
 		brMap.insert(std::pair<std::string, Node*>(str, node));
