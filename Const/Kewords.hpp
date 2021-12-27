@@ -24,6 +24,9 @@ namespace KeywordMap {
 		suba,
 		subx,
 
+		nega,
+		negx,
+
 		br,
 		brgt,
 		brlt,
@@ -61,6 +64,9 @@ namespace KeywordMap {
 		{"addx", Keywords::addx},
 		{"suba", Keywords::suba},
 		{"subx", Keywords::subx},
+
+		{"nega", Keywords::nega},
+		{"negx", Keywords::negx},
 
 		{"br", Keywords::br},
 		{"brgt", Keywords::brgt},
@@ -106,6 +112,10 @@ static std::map<std::string, std::vector<char>> keywordMap {
 	{"addx", {'i', 'd'}},
 	{"suba", {'i', 'd'}},
 	{"subx", {'i', 'd'}},
+
+	// negate regesters
+	{"nega", {1}},
+	{"negx", {1}},
 
 	// branching instructions
 	{"br", {1}},

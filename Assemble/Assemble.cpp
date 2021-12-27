@@ -89,7 +89,7 @@ void Assemble::checkGraph(void) const {
 	}
 }
 
-void Assemble::isCollision(const std::string& str, Node* node) {
+void Assemble::isCollision(const std::string& str, Node*& node) {
 	if(brMap.find(str) != brMap.end()) {
 		if(brMap[str]->isGo2) {
 			if(brMap[str]->left == NULL) {
@@ -258,6 +258,18 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 		node->specifier = codeLine;
 		prev->right = node;
 		prev = node;
+		return 1;
+	}
+
+	if(commandIndex == codeLine.npos) {
+		if(KeywordMap::keywordMap.find(codeLine) ==
+			KeywordMap::keywordMap.end()) {
+			return 0;
+		}
+
+		node->instruction = KeywordMap::keywordMap[codeLine];
+		node->specifier = codeLine;
+		prev->right = node;
 		return 1;
 	}
 
