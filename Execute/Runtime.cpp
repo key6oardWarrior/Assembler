@@ -230,7 +230,7 @@ void Runtime::execute(Node*& node) {
 				const size_t value = (node->specifier.back() == 'x') ?
 					regesters->index : 0;
 
-				if(vars[varName]->size() < value) {
+				if(vars[varName]->size() > value) {
 					std::cout << vars[varName]->getInstance(value)->getValue();
 				} else if(value < 0) {
 					throwError(Rte::OutOfRange, line);
@@ -245,7 +245,7 @@ void Runtime::execute(Node*& node) {
 			break;
 		}
 
-		default: // ONLY FOR TESTING. If code in file, but case not created.
+		default: // ONLY FOR TESTING. If there is no case for a line of code in the file.
 			node = node->right;
 			break;
 	}
