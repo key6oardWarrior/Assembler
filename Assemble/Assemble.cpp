@@ -31,6 +31,11 @@ void Assemble::removeBadSpacing(std::string& str) const {
 		index++;
 	}
 
+	size_t delim = str.find(";");
+	if(delim != str.npos) {
+		str = str.substr(0, delim);
+	}
+
 	if(str[0] == ' ') {
 		str = str.substr(1);
 	} else if(str[0] == '\t') {
@@ -44,7 +49,7 @@ void Assemble::removeBadSpacing(std::string& str) const {
 		str = str.substr(0, str.size()-1);
 	}
 
-	size_t delim = str.find(":");
+	delim = str.find(":");
 	if(delim != str.npos) {
 		if(str[delim-1] == ' ') {
 			str = str.substr(0, delim-1) + str.substr(delim);
