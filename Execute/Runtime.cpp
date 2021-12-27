@@ -230,8 +230,10 @@ void Runtime::execute(Node*& node) {
 				const size_t value = (node->specifier.back() == 'x') ?
 					regesters->index : 0;
 
-				if(vars.size() >= value) {
+				if(vars[varName]->size() < value) {
 					std::cout << vars[varName]->getInstance(value)->getValue();
+				} else if(value < 0) {
+					throwError(Rte::OutOfRange, line);
 				} else {
 					std::cout << memory[value];
 				}
