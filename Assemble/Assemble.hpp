@@ -10,6 +10,9 @@ private:
 	std::map<std::string, Node*> brMap;
 	// key = var name, value = a continuous memory space
 	std::map<std::string, DataType*> vars;
+	// Memory used to store vars
+	MemoryArray* memory = new MemoryArray();
+	size_t index = 0;
 	bool isArr = 0;
 	std::string lastVar = "";
 
@@ -71,9 +74,7 @@ private:
 	void throwError(const AssembleErrors&, const std::string&, const size_t&) const;
 
 public:
-	Assemble(const std::string& fileName) {
-		file = std::fstream(fileName);
-	}
+	Assemble(const std::string& fileName) { file = std::fstream(fileName); }
 
 	~Assemble(void) {
 		delete order;
@@ -92,4 +93,6 @@ public:
 	Graph* getOrder(void);
 
 	std::map<std::string, DataType*> getVars(void);
+
+	MemoryArray* getMemory(void);
 };

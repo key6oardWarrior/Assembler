@@ -196,56 +196,53 @@ int Assemble::findInt(const std::string& memorySize) const {
 
 void Assemble::declareVars(const std::string& declaration, const size_t& index)
 {
+	DataType* type;
 	const size_t space = declaration.rfind(' ');
-	const std::string memoryType = declaration.substr(index+1, space-(index+1));
 	const std::string varName = declaration.substr(0, index-1);
-	DataType* type = new DataType(varName, memoryType);
+	const std::string memoryType = declaration.substr(index+1, space-(index+1));
 
-	if(KeywordMap::keywordMap.find(memoryType) != KeywordMap::keywordMap.end())
-	{
-		const std::string memorySize = declaration.substr(space + 1);
-		const int number = findInt(memorySize);
-		if(memoryType == ".block") {
-			if(number < 2) {
-				throwError(AssembleErrors::NotEnoughBytes, declaration, brMap.size()+1);
-			}
-			type->defineType(number);
-			vars.insert(std::pair<std::string, DataType*>(varName, type));
+	if(declaration.find(".ascii ") != declaration.npos) {
+		type = new DataType();
+		const size_t start = declaration.find_first_of("\"");
 
-		} else if(memoryType == ".equate") {
-			type->defineType(number);
-			vars.insert(std::pair<std::string, DataType*>(varName, type));
-
-		} else if(memoryType == ".word") {
-			lastVar = varName;
-			isArr = 1;
-			const auto var = vars.find(varName);
-
-			if(var != vars.end()) {
-				delete type;
-				type = nullptr;
-
-				var->second->defineType(number);
-			} else {
-				type->defineType(number);
-				vars.insert(std::pair<std::string, DataType*>(varName, type));
-			}
-		} else {
-			throwError(AssembleErrors::CommandNotFound, declaration, brMap.size()+1);
-		}
-	} else if(declaration.find_first_of(" .ascii ") != declaration.npos)
-		{ // is string
-		const char eof = declaration.back();
-		const size_t delim = declaration.find(eof);
-		const size_t r_delim = declaration.rfind(eof);
-		const std::string mSize = declaration.substr(delim,
-			r_delim - delim);
-		type->defineType(mSize);
+		type->defineType(declaration.substr(start));
 		vars.insert(std::pair<std::string, DataType*>(varName, type));
-	} else {
+		isArr = 0;
+
+	} else if((declaration.find(".word ")) != declaration.npos) {
+		if(lastVar == "") {
+			type = new DataType(varName, memoryType, 1);
+			type->defineType(this->index, 1);
+			vars.insert(std::pair<std::string, DataType*>(varName, type));
+			lastVar = varName;
+		}
+
+		memory->insert(this->index, findInt(declaration.substr(space+1)));
+		isArr = 1;
+
+	} else if(KeywordMap::keywordMap.find(memoryType) !=
+		KeywordMap::keywordMap.end()) {
+
+		isArr = 0;
+		if(memoryType == ".equate") {
+			type = new DataType(varName, memoryType, 1);
+		} else {
+			type = new DataType(varName, memoryType, 0);
+		}
+
+		const std::string memorySize = declaration.substr(space+1);
+		const int number = findInt(memorySize);
+
+		memory->insert(0);
+		type->defineType(this->index, findInt(memorySize));
+		vars.insert(std::pair<std::string, DataType*>(varName, type));
+	}
+	else {
 		throwError(AssembleErrors::CommandNotFound, declaration,
 			brMap.size()-1);
 	}
+
+	this->index += 2;
 }
 
 bool Assemble::isLineLegal(std::string& codeLine) {
@@ -357,6 +354,8 @@ bool Assemble::isLineLegal(std::string& codeLine) {
 Graph* Assemble::getOrder(void) { return order; }
 
 std::map<std::string, DataType*> Assemble::getVars(void) { return vars; }
+
+MemoryArray* Assemble::getMemory(void) { return memory; }
 
 void Assemble::throwError(const AssembleErrors& error, const std::string& codeLine,
 	const size_t& lineNum) const {

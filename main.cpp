@@ -29,7 +29,7 @@ Assemble new file (n), Exit (e): ";
 				}
 
 				excute = new Runtime(assembled->getOrder(),
-					assembled->getVars());
+					assembled->getMemory(), assembled->getVars());
 				excute->run();
 				break;
 

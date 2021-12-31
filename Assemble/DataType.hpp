@@ -4,15 +4,20 @@ class DataType {
 private:
 	std::string name;
 	std::string type;
-	std::vector<Queue*> bits;
-	bool isString = 0;
-	bool isConst = 0; // size cannot change if true
-	bool initStatus = 0; // if Queue has been init
+	std::string str;
+	size_t index;
+	size_t size;
 
 public:
-	DataType(const std::string& name, const std::string& type) {
-		this->name = name;
+	bool isConst = 0; // size cannot change if true
+
+	DataType(void) = default;
+	DataType(const std::string& name, const std::string& type,
+		const bool& isConst) {
+		
 		this->type = type;
+		this->name = name;
+		this->isConst = isConst;
 	}
 
 	~DataType(void) = default;
@@ -22,40 +27,21 @@ public:
 	*
 	* @param data - add each char/int to each index in bits vector.
 	*/
-	void defineType(const std::string&);
+	void defineType(const std::string& str) { this->str = str; }
 
 	/*
 	* Put all needed bits in the vector to define the type
 	*
-	* @param data - add zeros to each index in bits vector.
+	* @param index - where the data's high byte is stored
 	*/
-	void defineType(const int&);
-
-	/*
-	* Modify the bits vector
-	*
-	* @param bit - The bit to be inserted into the bits vector
-	* @param index - 1st dimension index of array
-	*/
-	void modify(const bool& bit, const size_t& index) const {
-		bits[index]->enqueue(bit);
+	void defineType(const size_t& index, const size_t& size) {
+		this->index = index;
+		this->size = size;
 	}
 
-	/*
-	* @returns the bits, number, or char Queue
-	*/
-	Queue* getInstance(const int&);
-
-	/*
-	* @returns The instance's data type
-	*/
-	std::string getType(void);
-
-	bool is_string(void);
+	size_t getSize(void);
 	bool is_const(void);
-
-	/*
-	* @returns the size bits vector
-	*/
-	size_t size(void) const;
+	size_t getIndex(void);
+	std::string& getStr(void);
+	std::string& getType(void);
 };

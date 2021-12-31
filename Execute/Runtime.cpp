@@ -1,3 +1,4 @@
+#include "..\pch.h"
 #include "Runtime.hpp"
 
 int Runtime::findInt(const std::string& str) const {
@@ -16,7 +17,7 @@ int Runtime::findInt(const std::string& str) const {
 	return num;
 }
 
-void Runtime::execute(Node*& node) {
+void Runtime::execute(void) {
 	switch(node->instruction) {
 		case Key::adda:
 			addAddressingMode(regesters->accumulator, node->specifier);
@@ -112,21 +113,19 @@ void Runtime::execute(Node*& node) {
 		case Key::cpwa: {
 			int number = findInt(node->specifier);
 			
-			if(number < 0) {
-				number = abs(number);
+			if(node->specifier.back() == 'i') {
+				number = findInt(node->specifier);
 			} else {
-				number = 0 - number;
+				number = memory->getData(findInt(node->specifier));
 			}
 
 			if(number == regesters->accumulator) {
 				Z = 1;
 				C = 1;
 				N = 0;
-
 			} else if(number < regesters->accumulator) {
 				C = 1;
 				Z = 0;
-
 			} else {
 				N = 1;
 			}
@@ -141,13 +140,7 @@ void Runtime::execute(Node*& node) {
 			if(node->specifier.back() == 'i') {
 				number = findInt(node->specifier);
 			} else {
-				number = memory[findInt(node->specifier)];
-			}
-
-			if(number < 0) {
-				number = abs(number);
-			} else {
-				number = 0 - number;
+				number = memory->getData(findInt(node->specifier));
 			}
 
 			if(number == regesters->index) {
@@ -182,40 +175,32 @@ void Runtime::execute(Node*& node) {
 				throwError(Rte::Overflow, line);
 			}
 
-			if((number < 0) || (number == u_max)) {
+			if(number < 0) {
 				N = 1;
 				Z = 0;
 			}
 
-			const size_t value = (node->specifier.back() == 'x') ?
-				regesters->index : 0;
-			if(vars.find(var) != vars.end()) {
-				number = abs(number);
-
-				if(value < 0) {
-					throwError(Rte::OutOfRange, line);
-				} else if(value > vars.size()) {
-					throwError(Rte::OutOfRange, line);
-				}
-
-				if(vars[var]->getType() != ".word") {
-					while(number >= 2) {
-						// put the bit into the bits vector
-
-						vars[var]->modify(number%2, value);
-						number /= 2;
-					}
-
-					vars[var]->modify(number, value);
-				} else {
-					vars[var]->modify(number, 0);
-				}
-			} else {
-				memory[findInt(var)] = number;
+			if(number == u_max) {
+				N = 0;
+				Z = 0;
+				number = -1;
 			}
 
-			if(N == 1) {
-				vars[var]->getInstance(value)->negate();
+			const size_t value = (node->specifier.back() == 'x') ?
+				regesters->index : vars[var]->getIndex();
+  
+			if(vars.find(var) != vars.end()) { // if var name exist
+				if(value < 0) { // arrays can't have negative index
+					throwError(Rte::OutOfRange, line);
+				}
+
+				memory->insert(vars[var]->getIndex()+value, number);
+			} else {
+				/*
+				* if the var name does not exist, then direct addressing
+				* was used and insert number at the memory address
+				*/
+				memory->insert(findInt(var), number);
 			}
 
 			node = node->right;
@@ -230,15 +215,9 @@ void Runtime::execute(Node*& node) {
 				const size_t value = (node->specifier.back() == 'x') ?
 					regesters->index : 0;
 
-				if(vars[varName]->size() > value) {
-					std::cout << vars[varName]->getInstance(value)->getValue();
-				} else if(value < 0) {
-					throwError(Rte::OutOfRange, line);
-				} else {
-					std::cout << memory[value];
-				}
+				std::cout << memory->getData(vars[varName]->getIndex()+value);
 			} else {
-				std::cout << memory[findInt(varName)];
+				std::cout << memory->getData(findInt(varName));
 			}
 
 			node = node->right;
@@ -252,7 +231,6 @@ void Runtime::execute(Node*& node) {
 }
 
 void Runtime::run(void) {
-	Node* node = order->getRoot();
 	const Key end = Key::end;
 	const Key stop = Key::stop;
 
@@ -260,7 +238,7 @@ void Runtime::run(void) {
 		if(node->instruction == Key::br) {
 			node = node->left;
 		} else {
-			execute(node);
+			execute();
 		}
 		line++;
 	}
