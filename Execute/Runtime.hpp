@@ -18,37 +18,12 @@ private:
 	Runtime(void) = default;
 
 	/*
-	* @returns the int that is before the memory addresser
-	*/
-	int findInt(const std::string&) const;
-
-	/*
-	* Determin the addressing more and add the correct value to the regester
+	* Find the integer in the string
 	* 
-	* @param regNum - The reference to the regester that will be added
-	* @param am - The addressing mode string
+	* @param str - the string to be searched
+	* @returns the short that is before the memory addresser
 	*/
-	void addAddressingMode(volatile int& regNum, const std::string& am) const {
-		if(am.back() == 'i') {
-			regNum += findInt(am);
-		} else {
-			regNum += 0; // memory[findInt(am)];
-		}
-	}
-
-	/*
-	* Determin the addressing more and add the correct value to the regester
-	*
-	* @param am - The addressing mode string
-	* @param regNum - The reference to the regester that will be subtracted
-	*/
-	void subAddressingMode(volatile int& regNum, const std::string& am) const {
-		if(am.back() == 'i') {
-			regNum -= findInt(am);
-		} else {
-			regNum -= 0; // memory[findInt(am)];
-		}
-	}
+	short findInt(const std::string&) const;
 
 	/*
 	* Execute each line of code

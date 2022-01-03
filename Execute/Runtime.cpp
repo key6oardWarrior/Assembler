@@ -1,11 +1,11 @@
 #include "..\pch.h"
 #include "Runtime.hpp"
 
-int Runtime::findInt(const std::string& str) const {
+short Runtime::findInt(const std::string& str) const {
 	const size_t index = str.find(',');
 	const std::string number = str.substr(0, index);
 	std::stringstream str2Int;
-	int num;
+	short num;
 
 	if(number.substr(0, 2) == "0x") {
 		str2Int << std::hex << number;
@@ -19,14 +19,39 @@ int Runtime::findInt(const std::string& str) const {
 
 void Runtime::execute(void) {
 	switch(node->instruction) {
-		case Key::adda:
-			addAddressingMode(regesters->accumulator, node->specifier);
+		case Key::adda: {
+			const size_t index = node->specifier.find(',');
+			const std::string varName = node->specifier.substr(0, index);
+
+			if(vars.find(varName) != vars.end()) { // if data to store is in var
+				if(node->specifier.back() == 'd') { // direct addressing or not
+					regesters->accumulator += memory->getData(vars[varName]->getIndex());
+				} else {
+					const int value = vars[varName]->getIndex() + regesters->index;
+
+					if(value < 0) {
+						throwError(Rte::OutOfRange, line);
+					}
+					regesters->accumulator += memory->getData(value);
+				}
+			} else {
+				short value;
+				std::stringstream strtoi(varName);
+				strtoi >> value;
+
+				if(node->specifier.back() == 'i') { // indirect addressing
+					regesters->accumulator += value;
+				} else {
+					regesters->accumulator += memory->getData(value);
+				}
+			}
 
 			if((regesters->accumulator > u_max) ||
 				(regesters->accumulator < min)) {
 				throwError(Rte::Overflow, line);
 			}
 
+			// set flags
 			if(regesters->accumulator == u_max) {
 				Z = 0;
 				N = 1;
@@ -42,10 +67,35 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
+		}
+		break;
 
-		case Key::addx:
-			addAddressingMode(regesters->index, node->specifier);
+		case Key::addx: {
+			const size_t index = node->specifier.find(',');
+			const std::string varName = node->specifier.substr(0, index);
+
+			if(vars.find(varName) != vars.end()) { // if data to store is in var
+				if(node->specifier.back() == 'd') { // direct addressing or not
+					regesters->index += memory->getData(vars[varName]->getIndex());
+				} else {
+					const int value = vars[varName]->getIndex() + regesters->index;
+
+					if(value < 0) {
+						throwError(Rte::OutOfRange, line);
+					}
+					regesters->index += memory->getData(value);
+				}
+			} else {
+				short value;
+				std::stringstream strtoi(varName);
+				strtoi >> value;
+
+				if(node->specifier.back() == 'i') { // indirect addressing
+					regesters->index += value;
+				} else {
+					regesters->index += memory->getData(value);
+				}
+			}
 
 			if((regesters->index > u_max) || (regesters->index < min)) {
 				throwError(Rte::Overflow, line);
@@ -66,7 +116,8 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
+		}
+		break;
 
 		case Key::breq:
 			if(Z)
@@ -131,8 +182,8 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
 		}
+		break;
 
 		case Key::cpwx: {
 			int number;
@@ -153,8 +204,8 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
 		}
+		break;
 
 		case Key::deci: {
 			const size_t index = node->specifier.find(',');
@@ -163,6 +214,7 @@ void Runtime::execute(void) {
 			std::string input;
 			int number;
 
+			// ensure user input is clean
 			std::cin >> input;
 			if(input.find_first_of("0123456789") != input.npos) {
 				ctoi << input;
@@ -204,8 +256,8 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
 		}
+		break;
 
 		case Key::deco: {
 			const size_t index = node->specifier.find(',');
@@ -221,8 +273,123 @@ void Runtime::execute(void) {
 			}
 
 			node = node->right;
-			break;
 		}
+		break;
+
+		case Key::ldwa:{
+			const char backChar = node->specifier.back();
+
+			if(backChar == 'i') {
+				regesters->accumulator = findInt(node->specifier);
+			} else {
+				const size_t index = node->specifier.find(',');
+				const std::string varName = node->specifier.substr(0, index);
+
+				// check if value is a literal or stored in memory
+				if(vars.find(varName) == vars.end()) {
+					regesters->accumulator = memory->getData(findInt(varName));
+				} else {
+					if(backChar == 'd') {
+						regesters->accumulator =
+							memory->getData(vars[varName]->getIndex());
+					} else {
+						const int valueIndex = vars[varName]->getIndex() +
+							regesters->accumulator;
+
+						if(valueIndex < 0) {
+							throwError(RuntimeErrors::OutOfRange, line);
+						}
+						regesters->accumulator = memory->getData(valueIndex);
+					}
+				}
+			}
+		}
+		break;
+
+		case Key::ldwx: {
+			const char backChar = node->specifier.back();
+
+			if(backChar == 'i') {
+				regesters->index = findInt(node->specifier);
+			} else {
+				const size_t index = node->specifier.find(',');
+				const std::string varName = node->specifier.substr(0, index);
+
+				if(vars.find(varName) == vars.end()) {
+					regesters->index = memory->getData(findInt(varName));
+				} else {
+					if(backChar == 'd') {
+						regesters->index =
+							memory->getData(vars[varName]->getIndex());
+					} else {
+						const int valueIndex = vars[varName]->getIndex() +
+							regesters->index;
+
+						if(valueIndex < 0) {
+							throwError(RuntimeErrors::OutOfRange, line);
+						}
+						regesters->index = memory->getData(valueIndex);
+					}
+				}
+			}
+		}
+		break;
+
+		case Key::nega:
+			regesters->accumulator = 0 - regesters->accumulator;
+			break;
+
+		case Key::negx:
+			regesters->index = 0 - regesters->index;
+			break;
+
+		case Key::stro: {
+			const size_t index = node->specifier.find(',');
+			const std::string varName = node->specifier.substr(0, index);
+
+			if(vars.find(varName) != vars.end()) {
+				if(node->specifier.back() == 'd') {
+					std::cout << vars[varName]->getStr();
+				} else {
+					std::cout << vars[varName]->getStr().substr(regesters->index, 1);
+				}
+			} else {
+				std::cout << char(memory->getData(findInt(varName)));
+			}
+		}
+		break;
+
+		case Key::stwa: {
+			const size_t index = node->specifier.find(',');
+			const std::string varName = node->specifier.substr(0, index);
+
+			if(vars.find(varName) == vars.end()) {
+				const int number = regesters->accumulator;
+				memory->insert(findInt(varName), number);
+			} else {
+				const int number = regesters->accumulator;
+				const size_t valueIndex = (node->specifier.back() == 'x') ?
+					regesters->index : vars[varName]->getIndex();
+				memory->insert(valueIndex, number);
+			}
+		}
+		break;
+
+		case Key::stwx: {
+			const size_t index = node->specifier.find(',');
+			const std::string varName = node->specifier.substr(0, index);
+
+			if(vars.find(varName) == vars.end()) {
+				const int number = regesters->index;
+				memory->insert(findInt(varName), number);
+			} else {
+				const int number = regesters->index;
+				const size_t valueIndex = (node->specifier.back() == 'x') ?
+					regesters->index : vars[varName]->getIndex();
+				memory->insert(valueIndex, number);
+			}
+		}
+		break;
 
 		default: // ONLY FOR TESTING. If there is no case for a line of code in the file.
 			node = node->right;

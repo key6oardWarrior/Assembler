@@ -236,8 +236,7 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 		memory->insert(0);
 		type->defineType(this->index, findInt(memorySize));
 		vars.insert(std::pair<std::string, DataType*>(varName, type));
-	}
-	else {
+	} else {
 		throwError(AssembleErrors::CommandNotFound, declaration,
 			brMap.size()-1);
 	}
