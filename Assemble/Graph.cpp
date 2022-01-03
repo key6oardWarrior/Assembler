@@ -35,7 +35,7 @@ Graph::~Graph(void) {
 				}
 				parent = NULL;
 			} else {
-				parent = (parent->left != NULL) ? parent->left : parent->right;
+				parent = NULL;
 			}
 		}
 	}
