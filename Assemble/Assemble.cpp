@@ -2,33 +2,35 @@
 
 void Assemble::removeBadSpacing(std::string& str) const {
 	auto itr = str.begin();
-	const auto begining = itr;
+	const auto end = str.end();
 	int cnt = 0;
 	size_t index = 0;
 
-	while(itr != str.end()) {
+	while(itr != end) {
+		// ignore strings, chars, and comments
 		if((*itr == '"') || (*itr == '\'') || (*itr == ';')) {
 			break;
 		}
 
-		if(*itr == ' ') {
-			cnt++;
-		} else {
-			cnt = 0;
+		auto c_itr = itr+1;
+		if(c_itr == end) {
+			c_itr--;
 		}
 
-		if((cnt > 1) || (*itr == '\t')) {
-			const auto c_itr = itr + 1;
-			if((*c_itr != ' ') && (*c_itr != '\t')) {
-				str = str.replace(itr-cnt, c_itr, " ");
-				index -= cnt;
-				itr -= (*itr != str[0]) ? ++cnt : 0;
-				cnt = 0;
-			}
+		if((*c_itr == ' ') || (*c_itr == '\t')) {
+			cnt++;
+		} else if(cnt > 1) {
+			str = str.replace(itr - cnt, c_itr, " ");
+			index -= cnt;
+			itr -= (*itr != str[0]) ? ++cnt : 0;
+			cnt = 0;
 		} else {
+			cnt = 0;
 			itr++;
 		}
+
 		index++;
+		itr += (itr != end) ? 1 : 0;
 	}
 
 	size_t delim = str.find(";");
@@ -161,30 +163,11 @@ int Assemble::findInt(const std::string& memorySize) const {
 	if(memorySize.substr(0, 2) == "0x") {
 		str2int << std::hex << memorySize;
 	} else {
-		auto itr = memorySize.begin();
-		const auto end = memorySize.end();
-
-		while(itr != end) {
-			if(isdigit(*itr) == 0) {
-				if((*itr != '\'') && (*itr != '"')) {
-					throwError(AssembleErrors::NonNumeric, memorySize, brMap.size()+1);
-				}
-
-				if(memorySize.size() > 4) {
-					throwError(AssembleErrors::NonNumeric, memorySize, brMap.size()+1);
-				}
-
-				number = memorySize[1];			
-				if((memorySize[2] != '"') && (memorySize[2] != '\'')) {
-					number += memorySize[2];
-				}
-
-				return number;
-			}
-			itr++;
+		if(memorySize.find_first_of("-+1234567890") != memorySize.npos) {
+			str2int << memorySize;
+		} else {
+			throwError(AssembleErrors::NonNumeric, memorySize, brMap.size()+1);
 		}
-
-		str2int << memorySize;
 	}
 
 	str2int >> number;
@@ -231,7 +214,6 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 		}
 
 		const std::string memorySize = declaration.substr(space+1);
-		const int number = findInt(memorySize);
 
 		memory->insert(0);
 		type->defineType(this->index, findInt(memorySize));

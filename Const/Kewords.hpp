@@ -89,8 +89,8 @@ namespace KeywordMap {
 
 static std::map<std::string, std::vector<char>> keywordMap {
 	// write to regesters
-	{"ldwa", {'i', 'd'}},
-	{"ldwx", {'i', 'd'}},
+	{"ldwa", {'i', 'd', 'x'}},
+	{"ldwx", {'i', 'd', 'x'}},
 
 	// store regesters in memory
 	{"stwa", {'d', 'x'}},
@@ -102,14 +102,14 @@ static std::map<std::string, std::vector<char>> keywordMap {
 	{".word", {1}},
 
 	// compare regesters
-	{"cpwa", {'i', 'd'}},
-	{"cpwx", {'i', 'd'}},
+	{"cpwa", {'i', 'd', 'x'}},
+	{"cpwx", {'i', 'd', 'x'}},
 
 	// arithmetic on regesters
-	{"adda", {'i', 'd'}},
-	{"addx", {'i', 'd'}},
-	{"suba", {'i', 'd'}},
-	{"subx", {'i', 'd'}},
+	{"adda", {'i', 'd', 'x'}},
+	{"addx", {'i', 'd', 'x'}},
+	{"suba", {'i', 'd', 'x'}},
+	{"subx", {'i', 'd', 'x'}},
 
 	// negate regesters
 	{"nega", {1}},

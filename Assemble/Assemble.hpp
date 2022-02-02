@@ -77,9 +77,6 @@ public:
 	Assemble(const std::string& fileName) { file = std::fstream(fileName); }
 
 	~Assemble(void) {
-		delete order;
-		order = nullptr;
-
 		if(file.is_open()) {
 			file.close();
 		}

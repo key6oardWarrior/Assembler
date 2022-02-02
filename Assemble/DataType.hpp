@@ -39,9 +39,9 @@ public:
 		this->size = size;
 	}
 
-	size_t getSize(void);
-	bool is_const(void);
-	size_t getIndex(void);
-	std::string& getStr(void);
-	std::string& getType(void);
+	const size_t& getSize(void);
+	const bool& is_const(void);
+	const size_t& getIndex(void);
+	const std::string& getStr(void);
+	const std::string& getType(void);
 };

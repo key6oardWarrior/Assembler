@@ -18,6 +18,14 @@ private:
 	Runtime(void) = default;
 
 	/*
+	* Determin addressing mode and return the value at the given memory
+	* location
+	* 
+	* @return a value at a memory location, or the indirect value
+	*/
+	int addressingMode(void);
+
+	/*
 	* Find the integer in the string
 	* 
 	* @param str - the string to be searched
@@ -42,7 +50,7 @@ public:
 		node = order->getRoot();
 	}
 
-	~Runtime(void) = default;
+	~Runtime(void);
 
 	/*
 	* Run all the assembled code
