@@ -16,6 +16,7 @@ enum struct RuntimeErrors {
 	NonNumeric,
 	NotModifiable,
 	OutOfRange,
+	MalformedAddrMode
 };
 
 
@@ -43,6 +44,11 @@ static void throwError(const Rte& rte, const size_t& line) {
 
 		case Rte::OutOfRange:
 			errorMsg = "Array out of range. Line: " + std::to_string(line);
+			throw errorMsg;
+			break;
+
+		case Rte::MalformedAddrMode:
+			errorMsg = "Addressing mode not allowed Line: " + std::to_string(line);
 			throw errorMsg;
 			break;
 	}

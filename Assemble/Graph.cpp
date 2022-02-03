@@ -6,36 +6,31 @@ Graph::~Graph(void) {
 	std::set<Node*> visited;
 
 	queue.push(current);
-	visited.insert(current);
 
 	// Breadth-first search to store every node in a set
 	while(queue.size() > 0) {
 		Node* parent = queue.front();
 		queue.pop();
 
-		while(parent != NULL) {
-			const auto node = visited.find(parent);
+		if(parent != NULL) {
 			const auto end = visited.end();
 
-			if((node == end) || (*node != parent)) {
+			if(visited.find(parent) == end) {
 				visited.insert(parent);
 
 				if(parent->left != NULL) {
-					const auto nextNode = visited.find(parent->left);
-					if((nextNode == end) || (*(nextNode) != parent->left)) {
+					const auto child = visited.find(parent->left);
+					if(child == end) {
 						queue.push(parent->left);
 					}
 				}
 
 				if(parent->right != NULL) {
-					const auto nextNode = visited.find(parent->right);
-					if((nextNode == end) || (*(nextNode) != parent->right)) {
+					const auto child = visited.find(parent->right);
+					if(child == end) {
 						queue.push(parent->right);
 					}
 				}
-				parent = NULL;
-			} else {
-				parent = NULL;
 			}
 		}
 	}

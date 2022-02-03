@@ -46,16 +46,26 @@ int Runtime::addressingMode(void) {
 		}
 
 		number = memory->getData(index);
-	} else { // indexing using index regester
+	} else if(back == 'x') { // indexing using index regester
 		const size_t index = node->specifier.find(',');
 		const std::string varName = node->specifier.substr(0, index);
-		const int valueIndex = vars[varName]->getIndex() + regesters->index;
+		int valueIndex;
+
+		if(vars.find(varName) != vars.end()) {
+			valueIndex = vars[varName]->getIndex() + regesters->index;
+		} else {
+			valueIndex = findInt(node->specifier);
+		}
 
 		if(valueIndex < 0) {
 			throwError(Rte::OutOfRange, line);
+		} else if(valueIndex > u_max) {
+			throwError(Rte::Overflow, line);
 		}
 
 		number = memory->getData(valueIndex);
+	} else {
+		throwError(Rte::MalformedAddrMode, line);
 	}
 
 	return number;
@@ -331,7 +341,7 @@ void Runtime::execute(void) {
 		break;
 
 		case Key::suba: {
-			regesters->accumulator = addressingMode();
+			regesters->accumulator -= addressingMode();
 
 			if(regesters->accumulator < min) {
 				throwError(Rte::Overflow, line);
@@ -354,7 +364,7 @@ void Runtime::execute(void) {
 		break;
 
 		case Key::subx: {
-			regesters->index = addressingMode();
+			regesters->index -= addressingMode();
 
 			if(regesters->index < min) {
 				throwError(Rte::Overflow, line);

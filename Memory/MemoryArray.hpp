@@ -16,8 +16,9 @@ struct HexValue {
 
 class MemoryArray {
 private:
-	// key = index, value = Hex value
-	std::map<size_t, HexValue*> memoryMap;
+	// key = index, value = HexValue
+	std::map<size_t, HexValue**> memoryMap;
+	HexValue* first = new HexValue();
 
 	/*
 	* Convert int from base 10 to base 16
@@ -32,9 +33,9 @@ public:
 
 	/*
 	* Insert data at a give index
-	* 
+	*
 	* @param index - Where to insert data
-	* @param data - The data to put into 
+	* @param data - The data to put into
 	*/
 	void insert(const size_t&, const int& data=0);
 
