@@ -9,7 +9,6 @@ private:
 	Node* node;
 	MemoryArray* memory;
 	std::map<std::string, DataType*> vars;
-	size_t line = 1;
 	bool N = 0;
 	bool Z = 0;
 	bool C = 0;

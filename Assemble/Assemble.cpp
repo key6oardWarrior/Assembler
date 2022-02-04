@@ -137,7 +137,7 @@ void Assemble::assembleCode(void) {
 
 		removeBadSpacing(fileCode);
 
-		if(isLineLegal(fileCode) == 0) {
+		if(isLineLegal(fileCode, line) == 0) {
 			file.close();
 			throwError(AssembleErrors::CommandNotFound, fileCode, line);
 		}
@@ -226,10 +226,10 @@ void Assemble::declareVars(const std::string& declaration, const size_t& index)
 	this->index += 2;
 }
 
-bool Assemble::isLineLegal(std::string& codeLine) {
+bool Assemble::isLineLegal(std::string& codeLine, const int& line) {
 	size_t commandIndex = codeLine.find(' ');
 	std::string command = codeLine.substr(0, commandIndex);
-	Node* node = new Node();
+	Node* node = new Node(line);
 
 	if((codeLine == "stop") || (codeLine == ".end")) {
 		node->instruction = KeywordMap::keywordMap[codeLine];

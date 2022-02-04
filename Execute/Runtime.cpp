@@ -42,7 +42,7 @@ int Runtime::addressingMode(void) {
 	} else if(back == 'd') { // direct memory addressing
 		const int index = findInt(node->specifier);
 		if(index < 0) {
-			throwError(Rte::OutOfRange, line);
+			throwError(Rte::OutOfRange, node->line);
 		}
 
 		number = memory->getData(index);
@@ -58,14 +58,14 @@ int Runtime::addressingMode(void) {
 		}
 
 		if(valueIndex < 0) {
-			throwError(Rte::OutOfRange, line);
+			throwError(Rte::OutOfRange, node->line);
 		} else if(valueIndex > u_max) {
-			throwError(Rte::Overflow, line);
+			throwError(Rte::Overflow, node->line);
 		}
 
 		number = memory->getData(valueIndex);
 	} else {
-		throwError(Rte::MalformedAddrMode, line);
+		throwError(Rte::MalformedAddrMode, node->line);
 	}
 
 	return number;
@@ -78,7 +78,7 @@ void Runtime::execute(void) {
 
 			if((regesters->accumulator > u_max) ||
 				(regesters->accumulator < min)) {
-				throwError(Rte::Overflow, line);
+				throwError(Rte::Overflow, node->line);
 			}
 
 			// set flags
@@ -103,7 +103,7 @@ void Runtime::execute(void) {
 			regesters->index += addressingMode();
 
 			if((regesters->index > u_max) || (regesters->index < min)) {
-				throwError(Rte::Overflow, line);
+				throwError(Rte::Overflow, node->line);
 			}
 
 			if(regesters->index == u_max) {
@@ -212,12 +212,12 @@ void Runtime::execute(void) {
 			if(input.find_first_of("0123456789") != input.npos) {
 				ctoi << input;
 			} else {
-				throwError(Rte::NonNumeric, line);
+				throwError(Rte::NonNumeric, node->line);
 			}
 
 			ctoi >> number;
 			if((number > u_max) || (number < min)) {
-				throwError(Rte::Overflow, line);
+				throwError(Rte::Overflow, node->line);
 			}
 
 			if(number < 0) {
@@ -236,7 +236,7 @@ void Runtime::execute(void) {
   
 			if(vars.find(var) != vars.end()) { // if var name exist
 				if(value < 0) { // arrays can't have negative index
-					throwError(Rte::OutOfRange, line);
+					throwError(Rte::OutOfRange, node->line);
 				}
 
 				memory->insert(vars[var]->getIndex()+value, number);
@@ -344,7 +344,7 @@ void Runtime::execute(void) {
 			regesters->accumulator -= addressingMode();
 
 			if(regesters->accumulator < min) {
-				throwError(Rte::Overflow, line);
+				throwError(Rte::Overflow, node->line);
 			}
 
 			// set flags
@@ -367,7 +367,7 @@ void Runtime::execute(void) {
 			regesters->index -= addressingMode();
 
 			if(regesters->index < min) {
-				throwError(Rte::Overflow, line);
+				throwError(Rte::Overflow, node->line);
 			}
 
 			if(regesters->index > 0) {
@@ -397,6 +397,5 @@ void Runtime::run(void) {
 		} else {
 			execute();
 		}
-		line++;
 	}
 }

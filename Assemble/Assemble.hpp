@@ -35,9 +35,10 @@ private:
 	* Determin if the current line of code is legal, or not.
 	* 
 	* @param codeLine - The line of code being checked
+	* @param line - The line number the code can be found on
 	* @returns - true if the line is legal else false
 	*/
-	bool isLineLegal(std::string&);
+	bool isLineLegal(std::string&, const int&);
 
 	/*
 	* If the user enters to many spaces in some places the spaces must be removed

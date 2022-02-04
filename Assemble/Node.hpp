@@ -6,7 +6,11 @@ struct Node {
 	KeywordMap::Keywords instruction;
 	std::string specifier;
 	bool isGo2 = 0; // if Node has a left branch, or is left branch
+	int line;
 
-	Node(void) = default;
+	Node(const int line) { this->line = line; }
 	~Node(void) = default;
+
+private:
+	Node(void) = default;
 };
