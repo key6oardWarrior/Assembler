@@ -315,9 +315,14 @@ void Runtime::execute(void) {
 				memory->insert(findInt(varName), number);
 			} else { // store data in var's memory address
 				const int number = regesters->accumulator;
-				const size_t valueIndex = (node->specifier.back() == 'x') ?
-					regesters->index : vars[varName]->getIndex();
-				memory->insert(valueIndex, number);
+
+				if(node->specifier.back() == 'x') {
+					memory->insert(vars[varName]->getIndex()+regesters->index,
+						number);
+				} else {
+					memory->insert(vars[varName]->getIndex(), number);
+				}
+				
 			}
 			node = node->right;
 		}
@@ -327,16 +332,20 @@ void Runtime::execute(void) {
 			const size_t index = node->specifier.find(',');
 			const std::string varName = node->specifier.substr(0, index);
 
-			if(vars.find(varName) == vars.end()) {
+			if(vars.find(varName) == vars.end()) { // store data in memory addr
 				const int number = regesters->index;
 				memory->insert(findInt(varName), number);
-			} else {
+			} else { // store data in var's memory address
 				const int number = regesters->index;
-				const size_t valueIndex = (node->specifier.back() == 'x') ?
-					regesters->index : vars[varName]->getIndex();
-				memory->insert(valueIndex, number);
+
+				if(node->specifier.back() == 'x') {
+					memory->insert(vars[varName]->getIndex()+regesters->index,
+						number);
+				} else {
+					memory->insert(vars[varName]->getIndex(), number);
+				}
+				
 			}
-			node = node->right;
 		}
 		break;
 
