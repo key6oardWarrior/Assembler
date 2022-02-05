@@ -26,8 +26,9 @@ MemoryArray::~MemoryArray(void) {
 }
 
 std::string MemoryArray::baseConverter(const int& data) const {
+	short shortData = data;
 	std::stringstream bytes;
-	bytes << std::hex << data;
+	bytes << std::hex << shortData;
 	std::string hex = bytes.str();
 	hex = std::string(4-hex.size(), '0') + hex;
 
