@@ -11,10 +11,10 @@
 #include <iostream>
 
 // Memory
+#include "Memory\Regesters.hpp"
 #include "Memory\MemoryArray.hpp"
 
 // Assemble time
-#include "Regesters.hpp"
 #include "Const\Errors.hpp"
 #include "Const\Kewords.hpp"
 #include "Assemble\Node.hpp"
