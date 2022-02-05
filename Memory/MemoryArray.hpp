@@ -25,7 +25,7 @@ private:
 	* 
 	* @param data - data to be converted
 	*/
-	std::string baseConverter(const int&) const; 
+	std::string baseConverter(const short&) const; 
 
 public:
 	MemoryArray(void);
